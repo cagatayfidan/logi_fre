@@ -23,6 +23,17 @@ export type NotificationType =
   | "review"
   | "system"
 
+export interface PaymentMethod {
+  id: string
+  type: 'card' | 'bank_account'
+  last4: string
+  brand?: string
+  expiryMonth?: number
+  expiryYear?: number
+  isDefault: boolean
+  createdAt: string
+}
+
 export interface Notification {
   id: string
   userId: string
@@ -574,6 +585,29 @@ export const notificationTypeIcons: Record<NotificationType, string> = {
   system: "🔔",
 }
 
+export const mockPaymentMethods: PaymentMethod[] = [
+  {
+    id: "pm-1",
+    type: "card",
+    last4: "4242",
+    brand: "Visa",
+    expiryMonth: 12,
+    expiryYear: 2028,
+    isDefault: true,
+    createdAt: "June 1, 2026",
+  },
+  {
+    id: "pm-2",
+    type: "card",
+    last4: "1234",
+    brand: "Mastercard",
+    expiryMonth: 8,
+    expiryYear: 2027,
+    isDefault: false,
+    createdAt: "June 5, 2026",
+  },
+]
+
 export const mockNotifications: Notification[] = [
   {
     id: "notif-1",
@@ -651,6 +685,10 @@ export const mockNotifications: Notification[] = [
     createdAt: "2026-05-27T10:00:00Z",
   },
 ]
+
+export function getPaymentMethods(userId: string): PaymentMethod[] {
+  return mockPaymentMethods
+}
 
 export function getNotificationsForUser(userId: string): Notification[] {
   return mockNotifications

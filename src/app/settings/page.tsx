@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import Link from "next/link"
-import { ArrowLeft, Lock, Camera } from "lucide-react"
+import { ArrowLeft, Lock, Camera, CreditCard, Plus, Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -28,7 +28,8 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { currentUser } from "@/lib/data"
+import { currentUser, getPaymentMethods } from "@/lib/data"
+import type { PaymentMethod } from "@/lib/data"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -112,6 +113,9 @@ export default function SettingsPage() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(getPaymentMethods(user.id))
+  const [showAddCard, setShowAddCard] = useState(false)
+  const [newCardLast4, setNewCardLast4] = useState("")
 
   function onProfileSubmit(data: ProfileForm) {
     console.log("Profile", data)
@@ -374,6 +378,95 @@ export default function SettingsPage() {
             <p className="mt-4 text-xs text-muted-foreground">
               Changes save instantly — no save button needed
             </p>
+          </CardContent>
+        </Card>
+
+        <Separator className="my-6" />
+
+        {/* Payment Methods */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Payment Methods</CardTitle>
+            <CardDescription>Manage your saved payment cards</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {paymentMethods.map((pm) => (
+                <div key={pm.id} className="flex items-center justify-between rounded-lg border p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
+                      <CreditCard className="size-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {pm.brand} •••• {pm.last4}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Expires {String(pm.expiryMonth).padStart(2, "0")}/{pm.expiryYear}
+                        {pm.isDefault && " · Default"}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setPaymentMethods((prev) => prev.filter((m) => m.id !== pm.id))}
+                  >
+                    <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {showAddCard ? (
+              <div className="mt-3 space-y-3 rounded-lg border p-3">
+                <p className="text-sm font-medium">Add New Card</p>
+                <Input
+                  placeholder="Card number (last 4 digits)"
+                  maxLength={4}
+                  value={newCardLast4}
+                  onChange={(e) => setNewCardLast4(e.target.value.replace(/\D/g, ""))}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    disabled={newCardLast4.length !== 4}
+                    onClick={() => {
+                      setPaymentMethods((prev) => [
+                        ...prev,
+                        {
+                          id: `pm-${Date.now()}`,
+                          type: "card",
+                          last4: newCardLast4,
+                          brand: "Card",
+                          expiryMonth: 12,
+                          expiryYear: 2028,
+                          isDefault: prev.length === 0,
+                          createdAt: new Date().toLocaleDateString(),
+                        },
+                      ])
+                      setNewCardLast4("")
+                      setShowAddCard(false)
+                    }}
+                  >
+                    Add Card
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setShowAddCard(false); setNewCardLast4("") }}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => setShowAddCard(true)}
+              >
+                <Plus className="mr-1 size-4" />
+                Add Payment Method
+              </Button>
+            )}
           </CardContent>
         </Card>
 
