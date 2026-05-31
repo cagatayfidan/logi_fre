@@ -124,6 +124,20 @@ export default function SettingsPage() {
   const [newPayoutLast4, setNewPayoutLast4] = useState("")
   const [newPayoutBank, setNewPayoutBank] = useState("")
 
+  const [payoutSchedule, setPayoutSchedule] = useState({
+    frequency: 'weekly' as 'weekly' | 'biweekly' | 'monthly',
+    dayOfWeek: 1,
+    dayOfMonth: 1,
+    minimumPayoutAmount: 10,
+    isActive: true,
+  })
+  const [scheduleChanged, setScheduleChanged] = useState(false)
+
+  function handleScheduleChange(key: string, value: string | number | boolean) {
+    setPayoutSchedule(prev => ({ ...prev, [key]: value }))
+    setScheduleChanged(true)
+  }
+
   function onProfileSubmit(data: ProfileForm) {
     console.log("Profile", data)
     toast.success("Profile updated successfully")
@@ -568,6 +582,114 @@ export default function SettingsPage() {
                     Add Payout Method
                   </Button>
                 )}
+              </CardContent>
+            </Card>
+
+            <Separator className="my-6" />
+
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Payout Schedule</CardTitle>
+                <CardDescription>Configure when and how you receive payouts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FieldGroup>
+                  {/* Active toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">Automatic Payouts</Label>
+                      <p className="text-xs text-muted-foreground">Enable scheduled payouts to your default account</p>
+                    </div>
+                    <Switch
+                      checked={payoutSchedule.isActive}
+                      onCheckedChange={(v) => handleScheduleChange('isActive', v)}
+                    />
+                  </div>
+
+                  <Separator />
+
+                  {/* Frequency */}
+                  <Field>
+                    <FieldLabel>Payout Frequency</FieldLabel>
+                    <Select
+                      value={payoutSchedule.frequency}
+                      onValueChange={(v) => v && handleScheduleChange('frequency', v)}
+                      disabled={!payoutSchedule.isActive}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  {/* Day selector */}
+                  {payoutSchedule.frequency !== 'monthly' ? (
+                    <Field>
+                      <FieldLabel>Payout Day</FieldLabel>
+                      <Select
+                        value={String(payoutSchedule.dayOfWeek)}
+                        onValueChange={(v) => v && handleScheduleChange('dayOfWeek', Number(v))}
+                        disabled={!payoutSchedule.isActive}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((d, i) => (
+                            <SelectItem key={i} value={String(i)}>{d}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  ) : (
+                    <Field>
+                      <FieldLabel>Day of Month</FieldLabel>
+                      <Select
+                        value={String(payoutSchedule.dayOfMonth)}
+                        onValueChange={(v) => v && handleScheduleChange('dayOfMonth', Number(v))}
+                        disabled={!payoutSchedule.isActive}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 28 }, (_, i) => i + 1).map(d => (
+                            <SelectItem key={d} value={String(d)}>{d}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+
+                  {/* Minimum payout amount */}
+                  <Field>
+                    <FieldLabel>Minimum Payout Amount ($)</FieldLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={payoutSchedule.minimumPayoutAmount}
+                      onChange={(e) => handleScheduleChange('minimumPayoutAmount', Number(e.target.value))}
+                      disabled={!payoutSchedule.isActive}
+                      className="w-full"
+                    />
+                  </Field>
+
+                  <Button
+                    type="button"
+                    disabled={!scheduleChanged}
+                    onClick={() => {
+                      setScheduleChanged(false)
+                      toast.success('Payout schedule saved')
+                    }}
+                  >
+                    Save Schedule
+                  </Button>
+                </FieldGroup>
               </CardContent>
             </Card>
           </>
