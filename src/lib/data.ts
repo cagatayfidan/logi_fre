@@ -34,6 +34,15 @@ export interface PaymentMethod {
   createdAt: string
 }
 
+export interface PayoutMethod {
+  id: string
+  type: 'bank_account' | 'card'
+  last4: string
+  bankName?: string
+  isDefault: boolean
+  createdAt: string
+}
+
 export interface Notification {
   id: string
   userId: string
@@ -585,6 +594,25 @@ export const notificationTypeIcons: Record<NotificationType, string> = {
   system: "🔔",
 }
 
+export const mockPayoutMethods: PayoutMethod[] = [
+  {
+    id: "po-1",
+    type: "bank_account",
+    last4: "9876",
+    bankName: "Chase Bank",
+    isDefault: true,
+    createdAt: "June 1, 2026",
+  },
+  {
+    id: "po-2",
+    type: "bank_account",
+    last4: "5432",
+    bankName: "Bank of America",
+    isDefault: false,
+    createdAt: "June 5, 2026",
+  },
+]
+
 export const mockPaymentMethods: PaymentMethod[] = [
   {
     id: "pm-1",
@@ -688,6 +716,10 @@ export const mockNotifications: Notification[] = [
 
 export function getPaymentMethods(userId: string): PaymentMethod[] {
   return mockPaymentMethods
+}
+
+export function getPayoutMethods(userId: string): PayoutMethod[] {
+  return mockPayoutMethods
 }
 
 export function getNotificationsForUser(userId: string): Notification[] {
