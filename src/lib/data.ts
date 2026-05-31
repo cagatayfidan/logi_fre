@@ -504,6 +504,64 @@ export const cancelContractReasons = [
   "Other reason",
 ]
 
+export interface ScheduleEvent {
+  id: string
+  type: "move" | "pickup" | "delivery"
+  title: string
+  date: string
+  time: string
+  location: string
+  role: "shipper" | "transporter"
+  status: ContractStatus
+  contractId: string
+}
+
+export function getSchedule(userId: string): ScheduleEvent[] {
+  const userContracts = mockContracts.filter(
+    (c) => c.shipperId === userId || c.transporterId === userId
+  )
+  const events: ScheduleEvent[] = []
+
+  for (const contract of userContracts) {
+    const move = getMoveById(contract.moveId)
+    if (!move) continue
+    const role = contract.shipperId === userId ? "shipper" : "transporter"
+
+    events.push({
+      id: `pickup-${contract.id}`,
+      type: "pickup",
+      title: move.title,
+      date: move.pickupDate,
+      time: `${move.pickupTimeStart} - ${move.pickupTimeEnd}`,
+      location: move.origin,
+      role,
+      status: contract.status,
+      contractId: contract.id,
+    })
+
+    events.push({
+      id: `delivery-${contract.id}`,
+      type: "delivery",
+      title: move.title,
+      date: move.deliveryDate,
+      time: `${move.deliveryTimeStart} - ${move.deliveryTimeEnd}`,
+      location: move.destination,
+      role,
+      status: contract.status,
+      contractId: contract.id,
+    })
+  }
+
+  const dateParse = (d: string) => {
+    const m = d.match(/(\w+) (\d+), (\d+)/)
+    if (!m) return new Date(0)
+    return new Date(`${m[1]} ${m[2]}, ${m[3]}`)
+  }
+
+  events.sort((a, b) => dateParse(a.date).getTime() - dateParse(b.date).getTime())
+  return events
+}
+
 export const notificationTypeIcons: Record<NotificationType, string> = {
   offer_received: "💰",
   offer_accepted: "✅",
