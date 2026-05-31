@@ -36,6 +36,7 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
         { href: "/my-offers", label: t('nav.myOffers') },
         { href: "/contracts", label: t('nav.contracts') },
         { href: "/payments", label: t('nav.payments') },
+        { href: "/earnings", label: "Earnings" },
       ]
     : [
         { href: "/dashboard", label: t('nav.myMoves') },
