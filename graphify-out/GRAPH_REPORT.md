@@ -1,16 +1,16 @@
 # Graph Report - frontend  (2026-05-31)
 
 ## Corpus Check
-- 43 files · ~11,298 words
+- 48 files · ~11,829 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 259 nodes · 586 edges · 14 communities (11 shown, 3 thin omitted)
+- 264 nodes · 589 edges · 15 communities (12 shown, 3 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2d3ad21f`
+- Built from commit: `adc27cf1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,7 +22,6 @@
 - [[_COMMUNITY_Community 4|Community 4]]
 - [[_COMMUNITY_Community 5|Community 5]]
 - [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 7|Community 7]]
 - [[_COMMUNITY_Community 8|Community 8]]
 - [[_COMMUNITY_Community 9|Community 9]]
 - [[_COMMUNITY_Community 10|Community 10]]
@@ -47,25 +46,25 @@
   src/app/auth/role/page.tsx → src/lib/utils.ts
 - `CardAction()` --calls--> `cn()`  [EXTRACTED]
   src/components/ui/card.tsx → src/lib/utils.ts
-- `DialogOverlay()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/dialog.tsx → src/lib/utils.ts
-- `SelectGroup()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/select.tsx → src/lib/utils.ts
-- `SelectLabel()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/select.tsx → src/lib/utils.ts
+- `FieldSet()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/field.tsx → src/lib/utils.ts
+- `FieldLegend()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/field.tsx → src/lib/utils.ts
+- `FieldContent()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/field.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (14 total, 3 thin omitted)
+## Communities (15 total, 3 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.13
-Nodes (30): FormItem, presetItems, steps, LoginForm, loginSchema, ProfileForm, profileSchema, RegisterForm (+22 more)
+Cohesion: 0.09
+Nodes (39): LandingPage(), FormItem, presetItems, steps, DashboardPage(), LoginForm, loginSchema, MyOffersPage() (+31 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.07
-Nodes (35): NavHeaderProps, NavLink, shipperLinks, transporterLinks, Step, Stepper(), StepperProps, cn() (+27 more)
+Cohesion: 0.08
+Nodes (38): NavHeaderProps, NavLink, shipperLinks, transporterLinks, Step, Stepper(), StepperProps, cn() (+30 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.06
@@ -73,7 +72,7 @@ Nodes (31): dependencies, @base-ui/react, class-variance-authority, clsx, @hookf
 
 ### Community 3 - "Community 3"
 Cohesion: 0.09
-Nodes (23): ContractDetailPage(), MoveDetailPage(), Contract, currentTransporter, currentUser, getContractById(), getMoveById(), getOfferById() (+15 more)
+Nodes (25): ContractDetailPage(), MoveDetailPage(), Contract, currentTransporter, currentUser, getContractById(), getMoveById(), getOfferById() (+17 more)
 
 ### Community 4 - "Community 4"
 Cohesion: 0.09
@@ -84,12 +83,8 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.20
-Nodes (14): LandingPage(), EmptyState(), EmptyStateProps, NavHeader(), DashboardPage(), statusConfig, MyOffersPage(), statusConfig (+6 more)
-
-### Community 7 - "Community 7"
-Cohesion: 0.21
-Nodes (12): statusConfig, Badge(), badgeVariants, SelectContent(), SelectGroup(), SelectItem(), SelectLabel(), SelectScrollDownButton() (+4 more)
+Cohesion: 0.24
+Nodes (12): EmptyState(), EmptyStateProps, NavHeader(), statusConfig, statusConfig, Badge(), badgeVariants, Tabs() (+4 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.24
@@ -111,17 +106,17 @@ Nodes (3): Deploy on Vercel, Getting Started, Learn More
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `cn()` connect `Community 1` to `Community 0`, `Community 8`, `Community 6`, `Community 7`?**
-  _High betweenness centrality (0.193) - this node is a cross-community bridge._
-- **Why does `Button()` connect `Community 0` to `Community 8`, `Community 1`, `Community 6`?**
+- **Why does `cn()` connect `Community 1` to `Community 0`, `Community 8`, `Community 3`, `Community 6`?**
+  _High betweenness centrality (0.190) - this node is a cross-community bridge._
+- **Why does `Button()` connect `Community 0` to `Community 8`, `Community 1`, `Community 3`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `buttonVariants` connect `Community 6` to `Community 0`, `Community 3`, `Community 7`?**
-  _High betweenness centrality (0.012) - this node is a cross-community bridge._
+- **Why does `buttonVariants` connect `Community 0` to `Community 1`, `Community 3`, `Community 6`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **What connects `config`, `name`, `version` to the rest of the system?**
   _107 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.12784313725490196 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09117475160724722 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.07474747474747474 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.0625 - nodes in this community are weakly interconnected._
