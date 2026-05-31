@@ -1,0 +1,418 @@
+{
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "confirm": "Onayla",
+    "submit": "Gönder",
+    "back": "Geri",
+    "next": "İleri",
+    "close": "Kapat",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "loading": "Yükleniyor...",
+    "noData": "Veri bulunamadı",
+    "error": "Bir hata oluştu",
+    "success": "Başarılı",
+    "viewDetails": "Detayları Gör",
+    "edit": "Düzenle",
+    "remove": "Kaldır",
+    "add": "Ekle",
+    "create": "Oluştur",
+    "default": "Varsayılan",
+    "backup": "Yedek",
+    "optional": "İsteğe bağlı",
+    "required": "Zorunlu",
+    "currency": "TL",
+    "distanceUnit": "km",
+    "or": "veya"
+  },
+  "nav": {
+    "brand": "Haul",
+    "tagline": "Her Şeyi Taşı. Her Yere.",
+    "dashboard": "Kontrol Paneli",
+    "myMoves": "Taşımalarım",
+    "browseMoves": "Taşımaları Keşfet",
+    "schedule": "Takvim",
+    "contracts": "Sözleşmeler",
+    "myOffers": "Tekliflerim",
+    "notifications": "Bildirimler",
+    "payments": "Ödemeler",
+    "settings": "Ayarlar",
+    "admin": "Yönetim",
+    "signOut": "Çıkış Yap",
+    "unread": "okunmamış"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "register": "Hesap Oluştur",
+    "email": "E-posta",
+    "password": "Şifre",
+    "confirmPassword": "Şifreyi Onayla",
+    "name": "Ad Soyad",
+    "phone": "Telefon Numarası",
+    "forgotPassword": "Şifremi unuttum?",
+    "noAccount": "Hesabınız yok mu?",
+    "hasAccount": "Zaten hesabınız var mı?",
+    "signUp": "Kaydol",
+    "signIn": "Giriş Yap",
+    "role": {
+      "title": "Rolünü Seç",
+      "shipper": "Taşınıyorum",
+      "shipperDesc": "Taşıma ilanı ver ve uygun nakliyeci bul",
+      "transporter": "Nakliyeciyim",
+      "transporterDesc": "Taşımaları keşfet ve hizmetini sun"
+    },
+    "profile": {
+      "title": "Profilini Tamamla",
+      "subtitle": "Kendin hakkında biraz bilgi ver"
+    },
+    "verify": {
+      "title": "E-postanı Doğrula",
+      "subtitle": "{email} adresine gönderilen kodu gir",
+      "code": "Doğrulama Kodu",
+      "placeholder": "000000",
+      "submit": "E-postayı Doğrula",
+      "resend": "Kodu Yeniden Gönder",
+      "changeEmail": "E-posta Değiştir"
+    },
+    "forgot": {
+      "title": "Şifreni Sıfırla",
+      "subtitle": "E-posta adresini gir, sana sıfırlama kodu gönderelim",
+      "sendCode": "Sıfırlama Kodu Gönder",
+      "codeSent": "Sıfırlama kodu için e-postanı kontrol et",
+      "newPassword": "Yeni Şifre",
+      "resetButton": "Şifreyi Sıfırla"
+    },
+    "errors": {
+      "nameRequired": "Ad en az 2 karakter olmalıdır",
+      "emailRequired": "E-posta zorunludur",
+      "emailInvalid": "Geçersiz e-posta adresi",
+      "passwordRequired": "Şifre zorunludur",
+      "passwordMin": "En az 8 karakter",
+      "passwordUpper": "Büyük harf içermelidir",
+      "passwordNumber": "Rakam içermelidir",
+      "passwordMatch": "Şifreler eşleşmiyor",
+      "phoneRequired": "Geçerli bir telefon numarası girin"
+    }
+  },
+  "dashboard": {
+    "title": "Kontrol Paneli",
+    "welcome": "Hoş geldin, {name}",
+    "quickActions": "Hızlı İşlemler",
+    "postMove": "Taşıma İlanı Ver",
+    "browseMoves": "Uygun Taşımaları Keşfet",
+    "viewContracts": "Sözleşmelerimi Gör",
+    "recentActivity": "Son Aktiviteler",
+    "upcomingMoves": "Yaklaşan Taşımalar",
+    "noUpcoming": "Yaklaşan taşıma yok. İlk taşıma ilanını ver!",
+    "stats": {
+      "activeContracts": "Aktif Sözleşmeler",
+      "pendingOffers": "Bekleyen Teklifler",
+      "completedMoves": "Tamamlanan Taşımalar",
+      "totalSpent": "Toplam Harcama"
+    }
+  },
+  "moves": {
+    "title": "Taşımalarım",
+    "create": "Taşıma İlanı Ver",
+    "edit": "Taşımayı Düzenle",
+    "browse": "Taşımaları Keşfet",
+    "from": "Nereden",
+    "to": "Nereye",
+    "date": "Tarih",
+    "distance": "Mesafe",
+    "weight": "Toplam Ağırlık",
+    "volume": "Tahmini Hacim",
+    "items": "Eşyalar",
+    "offers": "Teklifler",
+    "status": {
+      "active": "Aktif",
+      "completed": "Tamamlandı",
+      "draft": "Taslak"
+    },
+    "createForm": {
+      "title": "Taşıma Talebi Oluştur",
+      "editTitle": "Taşıma Talebini Düzenle",
+      "moveTitle": "Taşıma Başlığı",
+      "moveTitlePlaceholder": "örn. Ev → Apartman",
+      "origin": "Alış Adresi",
+      "destination": "Teslimat Adresi",
+      "pickupDate": "Alış Tarihi",
+      "pickupTimeStart": "Alış Başlangıç Saati",
+      "pickupTimeEnd": "Alış Bitiş Saati",
+      "deliveryDate": "Teslimat Tarihi",
+      "deliveryTimeStart": "Teslimat Başlangıç Saati",
+      "deliveryTimeEnd": "Teslimat Bitiş Saati",
+      "addItem": "Eşya Ekle",
+      "itemName": "Eşya Adı",
+      "quantity": "Adet",
+      "weight": "Ağırlık (kg)",
+      "fragile": "Kırılgan",
+      "dimensions": "Boyutlar (isteğe bağlı)",
+      "saveDraft": "Taslak Olarak Kaydet",
+      "publish": "Yayınla",
+      "photos": "Fotoğraflar"
+    },
+    "detail": {
+      "offers": "Teklifler ({count})",
+      "noOffers": "Henüz teklif yok",
+      "cancelMove": "Taşımayı İptal Et",
+      "cancelConfirm": "Bu taşımayı iptal etmek istediğinize emin misiniz?",
+      "republish": "Yeniden Yayınla"
+    },
+    "sizeGuide": {
+      "title": "Taşıma Boyutu Tahmin Kılavuzu",
+      "studio": "Stüdyo / 1 Odalı",
+      "oneBed": "1 Yatak Odalı Daire",
+      "twoBed": "2 Yatak Odalı Daire",
+      "house": "3+ Yatak Odalı Ev",
+      "vehicle": "Önerilen Araç",
+      "smallVan": "Küçük Kamyonet",
+      "mediumTruck": "Orta Kamyon (10ft)",
+      "largeTruck": "Büyük Kamyon (15ft+)"
+    }
+  },
+  "offers": {
+    "title": "Teklifler",
+    "myOffers": "Tekliflerim",
+    "submitOffer": "Teklif Gönder",
+    "yourOffer": "Teklifin",
+    "price": "Fiyat",
+    "message": "Mesaj",
+    "insurance": "Sigorta Dahil",
+    "loadingHelp": "Yükleme Yardımı Mevcut",
+    "insuranceYes": "Evet",
+    "insuranceNo": "Hayır",
+    "status": {
+      "pending": "Bekliyor",
+      "accepted": "Kabul Edildi",
+      "rejected": "Reddedildi",
+      "expired": "Süresi Doldu"
+    },
+    "actions": {
+      "accept": "Teklifi Kabul Et",
+      "reject": "Reddet",
+      "counter": "Karşı Teklif",
+      "viewDetail": "Detayları Gör"
+    },
+    "counter": {
+      "title": "Karşı Teklif",
+      "from": "{name} tarafından karşı teklif",
+      "yourPrice": "Fiyatın",
+      "send": "Karşı Teklif Gönder"
+    },
+    "sortFilter": {
+      "sortBy": "Sırala",
+      "priceLow": "Fiyat: Düşükten Yükseğe",
+      "priceHigh": "Fiyat: Yüksekten Düşüğe",
+      "newest": "En Yeni",
+      "rating": "Nakliyeci Puanı",
+      "allStatus": "Tüm Durumlar",
+      "compare": "Seçilenleri Karşılaştır"
+    },
+    "detail": {
+      "negotiation": "Pazarlık Geçmişi",
+      "sentBy": "{name} tarafından gönderildi",
+      "expires": "{date} tarihinde sona eriyor",
+      "expired": "Süresi Doldu"
+    }
+  },
+  "contracts": {
+    "title": "Sözleşmeler",
+    "detail": "Sözleşme Detayı",
+    "agreedPrice": "Anlaşılan Fiyat",
+    "transporter": "Nakliyeci",
+    "shipper": "Gönderici",
+    "status": {
+      "pending_checkin": "Giriş Bekliyor",
+      "checked_in": "Giriş Yapıldı",
+      "in_transit": "Yolda",
+      "delivered": "Teslim Edildi",
+      "completed": "Tamamlandı",
+      "cancelled": "İptal Edildi"
+    },
+    "timeline": "Zaman Çizelgesi",
+    "actions": {
+      "checkIn": "Giriş Yap",
+      "markInTransit": "Yolda Olarak İşaretle",
+      "markDelivered": "Teslimatı Onayla",
+      "confirmReceipt": "Teslim Alındığını Onayla",
+      "cancel": "Sözleşmeyi İptal Et"
+    },
+    "cancel": {
+      "title": "Sözleşmeyi İptal Et",
+      "reason": "İptal sebebi",
+      "reasons": {
+        "noLongerNeed": "Plan değişikliği — taşımaya artık ihtiyacım yok",
+        "betterOffer": "Daha iyi bir teklif buldum",
+        "noResponse": "Nakliyeci cevap vermiyor",
+        "schedule": "Takvim çakışması",
+        "other": "Diğer sebep"
+      }
+    },
+    "payment": {
+      "escrow": "Emanet Beklemede",
+      "released": "Serbest Bırakıldı",
+      "refunded": "İade Edildi",
+      "pending": "Bekliyor"
+    },
+    "rating": {
+      "rateTransporter": "Nakliyeciyi Puanla",
+      "rateShipper": "Göndericiyi Puanla",
+      "comment": "Yorum bırak (isteğe bağlı)",
+      "submit": "Puanla",
+      "skip": "Geç"
+    },
+    "noContracts": "Henüz sözleşme yok"
+  },
+  "settings": {
+    "title": "Hesap Ayarları",
+    "profile": "Profil",
+    "changePassword": "Şifre Değiştir",
+    "currentPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "confirmPassword": "Yeni Şifreyi Onayla",
+    "passwordRules": "En az 8 karakter",
+    "passwordRulesUpper": "1 büyük harf + 1 rakam",
+    "notifications": "Bildirim Tercihleri",
+    "notificationsDesc": "Bildirimleri nasıl alacağını yönet",
+    "emailNotif": "E-posta Bildirimleri",
+    "emailNotifDesc": "E-posta ile güncellemeleri al",
+    "pushNotif": "Push Bildirimleri",
+    "pushNotifDesc": "Push bildirimleri al",
+    "offerAlerts": "Teklif Uyarıları",
+    "offerAlertsDesc": "Yeni teklif aldığında bildir",
+    "offerAlertsDisabled": "(push gerektirir)",
+    "contractUpdates": "Sözleşme Güncellemeleri",
+    "contractUpdatesDesc": "Aktif sözleşmelerindeki durum değişiklikleri",
+    "instantSave": "Değişiklikler anında kaydedilir",
+    "paymentMethods": "Ödeme Yöntemleri",
+    "paymentMethodsDesc": "Kayıtlı ödeme kartlarını yönet",
+    "addCard": "Ödeme Yöntemi Ekle",
+    "cardNumber": "Kart numarası (son 4 hane)",
+    "addCardButton": "Kart Ekle",
+    "payoutMethods": "Ödeme Alma Yöntemleri",
+    "payoutMethodsDesc": "Ödemelerini almak için hesap bilgilerini yönet",
+    "addPayout": "Ödeme Alma Yöntemi Ekle",
+    "bankName": "Banka adı",
+    "accountNumber": "Hesap numarası (son 4 hane)",
+    "addAccount": "Hesap Ekle",
+    "preferences": "Tercihler",
+    "distanceUnit": "Tercih Edilen Mesafe Birimi",
+    "km": "Kilometre (km)",
+    "mi": "Mil (mi)",
+    "currency": "Tercih Edilen Para Birimi",
+    "language": "Dil",
+    "english": "English",
+    "turkish": "Türkçe",
+    "german": "Deutsch",
+    "french": "Français",
+    "savePrefs": "Tercihleri Kaydet",
+    "dangerZone": "Tehlikeli Bölge",
+    "deleteAccount": "Hesabı Sil",
+    "deleteAccountDesc": "Hesabını ve tüm verilerini kalıcı olarak sil. Bu işlem geri alınamaz.",
+    "deleteConfirm": "Onaylamak için \"SİL\" yazın:",
+    "deleteForever": "Kalıcı Olarak Sil",
+    "changePhoto": "Fotoğraf Değiştir",
+    "emailCannotChange": "E-posta değiştirilemez",
+    "profileUpdated": "Profil başarıyla güncellendi",
+    "passwordUpdated": "Şifre başarıyla güncellendi",
+    "notifEnabled": "{name} etkinleştirildi",
+    "notifDisabled": "{name} devre dışı bırakıldı",
+    "accountDeleted": "Hesap başarıyla silindi"
+  },
+  "payments": {
+    "title": "Ödemeler",
+    "history": "Ödeme Geçmişi",
+    "amount": "Tutar",
+    "date": "Tarih",
+    "contract": "Sözleşme",
+    "transporter": "Nakliyeci",
+    "shipper": "Gönderici",
+    "status": {
+      "pending": "Bekliyor",
+      "held": "Emanet Beklemede",
+      "released": "Serbest Bırakıldı",
+      "refunded": "İade Edildi",
+      "failed": "Başarısız"
+    },
+    "viewReceipt": "Makbuzu Gör"
+  },
+  "schedule": {
+    "title": "Takvim",
+    "noEvents": "Yaklaşan etkinlik yok",
+    "pickup": "Alış",
+    "delivery": "Teslimat"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "markAllRead": "Tümünü Okundu İşaretle",
+    "empty": "Henüz bildirim yok",
+    "emptyDesc": "Bildirim aldığında burada görünecekler"
+  },
+  "admin": {
+    "title": "Yönetim Paneli",
+    "stats": {
+      "totalUsers": "Toplam Kullanıcı",
+      "activeUsers": "Aktif Kullanıcı",
+      "totalMoves": "Toplam Taşıma",
+      "contracts": "Sözleşmeler"
+    },
+    "users": "Kullanıcı Yönetimi",
+    "search": "Kullanıcı ara...",
+    "status": {
+      "active": "Aktif",
+      "suspended": "Askıda"
+    },
+    "actions": {
+      "suspend": "Askıya Al",
+      "reactivate": "Yeniden Aktif Et"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Her Şeyi Taşı. Her Yere.",
+      "subtitle": "Dakikalar içinde yerel nakliyecilerden teklifleri karşılaştır. İster şehir içi ister şehirlerarası, ihtiyacına en uygun nakliyecuyi bul.",
+      "postMove": "Taşıma İlanı Ver",
+      "becomeTransporter": "Nakliyeci Ol"
+    },
+    "howItWorks": {
+      "title": "Nasıl Çalışır",
+      "step1": "Taşımanı Tarif Et",
+      "step1Desc": "Ne taşıdığını, nereden ve ne zaman olduğunu belirt",
+      "step2": "Teklif Al",
+      "step2Desc": "Yerel nakliyeciler taşımana teklif versin",
+      "step3": "Seç ve Taşı",
+      "step3Desc": "En iyi teklifi seç, profesyoneller halletsin"
+    },
+    "features": {
+      "title": "Neden Haul?",
+      "compare": "Karşılaştır ve Kazançlı Çık",
+      "compareDesc": "Tek platformda birden çok teklif — en iyi değeri seç",
+      "secure": "Güvenli Ödemeler",
+      "secureDesc": "Emanet korumalı ödemeler, memnun kalana kadar bekletilir",
+      "track": "Gerçek Zamanlı Takip",
+      "trackDesc": "Taşımanı her adımda takip et"
+    },
+    "cta": {
+      "title": "Taşınmaya Hazır mısın?",
+      "subtitle": "Haul ile taşınan binlerce mutlu müşteriye katıl",
+      "button": "Hemen Başla"
+    }
+  },
+  "data": {
+    "notificationTypes": {
+      "offer_received": "Yeni Teklif Alındı",
+      "offer_accepted": "Teklif Kabul Edildi",
+      "offer_rejected": "Teklif Reddedildi",
+      "counter_offer": "Karşı Teklif",
+      "contract_status": "Sözleşme Güncellemesi",
+      "move_reminder": "Taşıma Hatırlatması",
+      "payment": "Ödeme",
+      "review": "Değerlendirme",
+      "system": "Sistem"
+    }
+  }
+}

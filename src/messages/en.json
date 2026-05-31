@@ -1,0 +1,418 @@
+{
+  "common": {
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "error": "An error occurred",
+    "success": "Success",
+    "viewDetails": "View Details",
+    "edit": "Edit",
+    "remove": "Remove",
+    "add": "Add",
+    "create": "Create",
+    "default": "Default",
+    "backup": "Backup",
+    "optional": "Optional",
+    "required": "Required",
+    "currency": "USD",
+    "distanceUnit": "km",
+    "or": "or"
+  },
+  "nav": {
+    "brand": "Haul",
+    "tagline": "Move Anything. Anywhere.",
+    "dashboard": "Dashboard",
+    "myMoves": "My Moves",
+    "browseMoves": "Browse Moves",
+    "schedule": "Schedule",
+    "contracts": "Contracts",
+    "myOffers": "My Offers",
+    "notifications": "Notifications",
+    "payments": "Payments",
+    "settings": "Settings",
+    "admin": "Admin",
+    "signOut": "Sign Out",
+    "unread": "unread"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In",
+    "role": {
+      "title": "Choose Your Role",
+      "shipper": "I'm Moving",
+      "shipperDesc": "Post a move and find the right transporter",
+      "transporter": "I'm a Transporter",
+      "transporterDesc": "Browse moves and offer your services"
+    },
+    "profile": {
+      "title": "Complete Your Profile",
+      "subtitle": "Tell us a bit about yourself"
+    },
+    "verify": {
+      "title": "Verify Your Email",
+      "subtitle": "Enter the code sent to {email}",
+      "code": "Verification Code",
+      "placeholder": "000000",
+      "submit": "Verify Email",
+      "resend": "Resend Code",
+      "changeEmail": "Change Email"
+    },
+    "forgot": {
+      "title": "Reset Your Password",
+      "subtitle": "Enter your email and we'll send you a reset code",
+      "sendCode": "Send Reset Code",
+      "codeSent": "Check your email for the reset code",
+      "newPassword": "New Password",
+      "resetButton": "Reset Password"
+    },
+    "errors": {
+      "nameRequired": "Name must be at least 2 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "passwordRequired": "Password is required",
+      "passwordMin": "At least 8 characters",
+      "passwordUpper": "Must contain an uppercase letter",
+      "passwordNumber": "Must contain a number",
+      "passwordMatch": "Passwords do not match",
+      "phoneRequired": "Please enter a valid phone number"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}",
+    "quickActions": "Quick Actions",
+    "postMove": "Post a Move",
+    "browseMoves": "Browse Available Moves",
+    "viewContracts": "View My Contracts",
+    "recentActivity": "Recent Activity",
+    "upcomingMoves": "Upcoming Moves",
+    "noUpcoming": "No upcoming moves. Post your first move!",
+    "stats": {
+      "activeContracts": "Active Contracts",
+      "pendingOffers": "Pending Offers",
+      "completedMoves": "Completed Moves",
+      "totalSpent": "Total Spent"
+    }
+  },
+  "moves": {
+    "title": "My Moves",
+    "create": "Post a Move",
+    "edit": "Edit Move",
+    "browse": "Browse Moves",
+    "from": "From",
+    "to": "To",
+    "date": "Date",
+    "distance": "Distance",
+    "weight": "Total Weight",
+    "volume": "Estimated Volume",
+    "items": "Items",
+    "offers": "Offers",
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "draft": "Draft"
+    },
+    "createForm": {
+      "title": "Create Move Request",
+      "editTitle": "Edit Move Request",
+      "moveTitle": "Move Title",
+      "moveTitlePlaceholder": "e.g., Home → Apartment",
+      "origin": "Pickup Address",
+      "destination": "Delivery Address",
+      "pickupDate": "Pickup Date",
+      "pickupTimeStart": "Pickup Time From",
+      "pickupTimeEnd": "Pickup Time To",
+      "deliveryDate": "Delivery Date",
+      "deliveryTimeStart": "Delivery Time From",
+      "deliveryTimeEnd": "Delivery Time To",
+      "addItem": "Add Item",
+      "itemName": "Item Name",
+      "quantity": "Quantity",
+      "weight": "Weight (kg)",
+      "fragile": "Fragile",
+      "dimensions": "Dimensions (optional)",
+      "saveDraft": "Save as Draft",
+      "publish": "Publish Move",
+      "photos": "Photos"
+    },
+    "detail": {
+      "offers": "Offers ({count})",
+      "noOffers": "No offers yet",
+      "cancelMove": "Cancel Move",
+      "cancelConfirm": "Are you sure you want to cancel this move?",
+      "republish": "Republish"
+    },
+    "sizeGuide": {
+      "title": "Move Size Estimation Guide",
+      "studio": "Studio / 1-Room",
+      "oneBed": "1-Bedroom Apartment",
+      "twoBed": "2-Bedroom Apartment",
+      "house": "3+ Bedroom House",
+      "vehicle": "Recommended Vehicle",
+      "smallVan": "Small Van",
+      "mediumTruck": "Medium Truck (10ft)",
+      "largeTruck": "Large Truck (15ft+)"
+    }
+  },
+  "offers": {
+    "title": "Offers",
+    "myOffers": "My Offers",
+    "submitOffer": "Submit Offer",
+    "yourOffer": "Your Offer",
+    "price": "Price",
+    "message": "Message",
+    "insurance": "Insurance Included",
+    "loadingHelp": "Loading Help Available",
+    "insuranceYes": "Yes",
+    "insuranceNo": "No",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "actions": {
+      "accept": "Accept Offer",
+      "reject": "Reject",
+      "counter": "Counter-Offer",
+      "viewDetail": "View Details"
+    },
+    "counter": {
+      "title": "Counter-Offer",
+      "from": "Counter-offer from {name}",
+      "yourPrice": "Your Price",
+      "send": "Send Counter-Offer"
+    },
+    "sortFilter": {
+      "sortBy": "Sort by",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "newest": "Newest First",
+      "rating": "Transporter Rating",
+      "allStatus": "All Statuses",
+      "compare": "Compare Selected"
+    },
+    "detail": {
+      "negotiation": "Negotiation History",
+      "sentBy": "Sent by {name}",
+      "expires": "Expires {date}",
+      "expired": "Expired"
+    }
+  },
+  "contracts": {
+    "title": "Contracts",
+    "detail": "Contract Detail",
+    "agreedPrice": "Agreed Price",
+    "transporter": "Transporter",
+    "shipper": "Shipper",
+    "status": {
+      "pending_checkin": "Pending Check-in",
+      "checked_in": "Checked In",
+      "in_transit": "In Transit",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "timeline": "Timeline",
+    "actions": {
+      "checkIn": "Check In",
+      "markInTransit": "Mark In Transit",
+      "markDelivered": "Confirm Delivery",
+      "confirmReceipt": "Confirm Receipt",
+      "cancel": "Cancel Contract"
+    },
+    "cancel": {
+      "title": "Cancel Contract",
+      "reason": "Reason for cancellation",
+      "reasons": {
+        "noLongerNeed": "Change of plans — no longer need the move",
+        "betterOffer": "Found a better offer",
+        "noResponse": "Transporter is not responding",
+        "schedule": "Schedule conflict",
+        "other": "Other reason"
+      }
+    },
+    "payment": {
+      "escrow": "Escrow Hold",
+      "released": "Released",
+      "refunded": "Refunded",
+      "pending": "Pending"
+    },
+    "rating": {
+      "rateTransporter": "Rate Transporter",
+      "rateShipper": "Rate Shipper",
+      "comment": "Leave a comment (optional)",
+      "submit": "Submit Rating",
+      "skip": "Skip"
+    },
+    "noContracts": "No contracts yet"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "profile": "Profile",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordRules": "At least 8 characters",
+    "passwordRulesUpper": "1 uppercase + 1 number",
+    "notifications": "Notification Preferences",
+    "notificationsDesc": "Manage how you receive updates",
+    "emailNotif": "Email Notifications",
+    "emailNotifDesc": "Receive updates via email",
+    "pushNotif": "Push Notifications",
+    "pushNotifDesc": "Receive push notifications",
+    "offerAlerts": "Offer Alerts",
+    "offerAlertsDesc": "Get notified when you receive a new offer",
+    "offerAlertsDisabled": "(requires push)",
+    "contractUpdates": "Contract Updates",
+    "contractUpdatesDesc": "Status changes on your active contracts",
+    "instantSave": "Changes save instantly",
+    "paymentMethods": "Payment Methods",
+    "paymentMethodsDesc": "Manage your saved payment cards",
+    "addCard": "Add Payment Method",
+    "cardNumber": "Card number (last 4 digits)",
+    "addCardButton": "Add Card",
+    "payoutMethods": "Payout Methods",
+    "payoutMethodsDesc": "Manage your payout accounts to receive payments",
+    "addPayout": "Add Payout Method",
+    "bankName": "Bank name",
+    "accountNumber": "Account number (last 4 digits)",
+    "addAccount": "Add Account",
+    "preferences": "Preferences",
+    "distanceUnit": "Preferred Distance Unit",
+    "km": "Kilometers (km)",
+    "mi": "Miles (mi)",
+    "currency": "Preferred Currency",
+    "language": "Language",
+    "english": "English",
+    "turkish": "Türkçe",
+    "german": "Deutsch",
+    "french": "Français",
+    "savePrefs": "Save Preferences",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDesc": "Permanently delete your account and all data. This cannot be undone.",
+    "deleteConfirm": "Type \"DELETE\" to confirm:",
+    "deleteForever": "Delete Forever",
+    "changePhoto": "Change Photo",
+    "emailCannotChange": "Email cannot be changed",
+    "profileUpdated": "Profile updated successfully",
+    "passwordUpdated": "Password updated successfully",
+    "notifEnabled": "{name} enabled",
+    "notifDisabled": "{name} disabled",
+    "accountDeleted": "Account deleted successfully"
+  },
+  "payments": {
+    "title": "Payments",
+    "history": "Payment History",
+    "amount": "Amount",
+    "date": "Date",
+    "contract": "Contract",
+    "transporter": "Transporter",
+    "shipper": "Shipper",
+    "status": {
+      "pending": "Pending",
+      "held": "Escrow Hold",
+      "released": "Released",
+      "refunded": "Refunded",
+      "failed": "Failed"
+    },
+    "viewReceipt": "View Receipt"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "noEvents": "No upcoming events",
+    "pickup": "Pickup",
+    "delivery": "Delivery"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark All as Read",
+    "empty": "No notifications yet",
+    "emptyDesc": "When you receive notifications, they'll appear here"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "totalMoves": "Total Moves",
+      "contracts": "Contracts"
+    },
+    "users": "User Management",
+    "search": "Search users...",
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "actions": {
+      "suspend": "Suspend",
+      "reactivate": "Reactivate"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Move Anything. Anywhere.",
+      "subtitle": "Compare offers from local transporters in minutes. Whether it's across town or across the country, find the perfect mover for your needs.",
+      "postMove": "Post a Move",
+      "becomeTransporter": "Become a Transporter"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": "Describe Your Move",
+      "step1Desc": "Tell us what you're moving, where, and when",
+      "step2": "Receive Offers",
+      "step2Desc": "Local transporters bid on your move",
+      "step3": "Choose & Move",
+      "step3Desc": "Pick the best offer and let the pros handle it"
+    },
+    "features": {
+      "title": "Why Choose Haul?",
+      "compare": "Compare & Save",
+      "compareDesc": "Multiple offers, one platform — pick the best value",
+      "secure": "Secure Payments",
+      "secureDesc": "Escrow-protected payments release only when you're satisfied",
+      "track": "Real-Time Tracking",
+      "trackDesc": "Track your move every step of the way"
+    },
+    "cta": {
+      "title": "Ready to Move?",
+      "subtitle": "Join thousands of happy customers who moved with Haul",
+      "button": "Get Started"
+    }
+  },
+  "data": {
+    "notificationTypes": {
+      "offer_received": "New Offer Received",
+      "offer_accepted": "Offer Accepted",
+      "offer_rejected": "Offer Rejected",
+      "counter_offer": "Counter-Offer",
+      "contract_status": "Contract Update",
+      "move_reminder": "Move Reminder",
+      "payment": "Payment",
+      "review": "Review",
+      "system": "System"
+    }
+  }
+}

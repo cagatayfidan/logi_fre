@@ -10,14 +10,16 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
 import { mockMoves } from "@/lib/data"
+import { useT } from "@/lib/i18n-provider"
 
-const statusConfig = {
-  active: { label: "Active", variant: "default" as const },
-  completed: { label: "Completed", variant: "secondary" as const },
-  draft: { label: "Draft", variant: "outline" as const },
+const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
+  active: "default",
+  completed: "secondary",
+  draft: "outline",
 }
 
 export default function DashboardPage() {
+  const { t } = useT()
   const [activeTab, setActiveTab] = useState("active")
   const moves = mockMoves.filter((m) => m.status === activeTab)
 
@@ -26,29 +28,29 @@ export default function DashboardPage() {
       <NavHeader role="shipper" userName="John Doe" />
       <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">My Moves</h1>
+          <h1 className="text-2xl font-bold">{t('moves.title')}</h1>
           <Link href="/moves/create" className={buttonVariants({ variant: "default", size: "default" })}>
             <Plus className="mr-2 size-4" data-icon="inline-start" />
-            Post a Move
+            {t('moves.create')}
           </Link>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="active">{t('moves.status.active')}</TabsTrigger>
+            <TabsTrigger value="completed">{t('moves.status.completed')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4">
             {moves.length === 0 ? (
               <EmptyState
                 icon="📦"
-                title="No moves yet"
-                description="You haven't posted any moves yet. Ready to move something?"
+                title={t('dashboard.noUpcoming')}
+                description=""
                 action={
                   <Link href="/moves/create" className={buttonVariants({ variant: "default", size: "default" })}>
                     <Plus className="mr-2 size-4" data-icon="inline-start" />
-                    Post a Move
+                    {t('moves.create')}
                   </Link>
                 }
               />
@@ -68,16 +70,16 @@ export default function DashboardPage() {
                             <span>{move.pickupDate}</span>
                           </div>
                           <div className="flex gap-3 text-sm text-muted-foreground">
-                            <span>{move.items.length} items</span>
+                            <span>{move.items.length} {t('moves.items')}</span>
                             <span>{move.totalWeight}kg</span>
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          <Badge variant={statusConfig[move.status].variant}>
-                            {statusConfig[move.status].label}
+                          <Badge variant={statusVariant[move.status] ?? "outline"}>
+                            {t(`moves.status.${move.status}`)}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            Offers: {move.offerCount}
+                            {t('moves.offers')}: {move.offerCount}
                           </span>
                         </div>
                       </CardContent>
