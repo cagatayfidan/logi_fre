@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import Link from "next/link"
-import { ArrowLeft, Lock, Camera, CreditCard, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Lock, Camera, CreditCard, Plus, Trash2, Landmark } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -28,8 +28,8 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { currentUser, getPaymentMethods } from "@/lib/data"
-import type { PaymentMethod } from "@/lib/data"
+import { currentUser, getPaymentMethods, getPayoutMethods } from "@/lib/data"
+import type { PaymentMethod, PayoutMethod } from "@/lib/data"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -116,6 +116,10 @@ export default function SettingsPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(getPaymentMethods(user.id))
   const [showAddCard, setShowAddCard] = useState(false)
   const [newCardLast4, setNewCardLast4] = useState("")
+  const [payoutMethods, setPayoutMethods] = useState<PayoutMethod[]>(getPayoutMethods(user.id))
+  const [showAddPayout, setShowAddPayout] = useState(false)
+  const [newPayoutLast4, setNewPayoutLast4] = useState("")
+  const [newPayoutBank, setNewPayoutBank] = useState("")
 
   function onProfileSubmit(data: ProfileForm) {
     console.log("Profile", data)
@@ -469,6 +473,102 @@ export default function SettingsPage() {
             )}
           </CardContent>
         </Card>
+
+        {user.role === "transporter" && (
+          <>
+            <Separator className="my-6" />
+
+            {/* Payout Methods */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Payout Methods</CardTitle>
+                <CardDescription>Manage your payout accounts to receive payments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {payoutMethods.map((pm) => (
+                    <div key={pm.id} className="flex items-center justify-between rounded-lg border p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
+                          <Landmark className="size-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {pm.bankName ?? "Bank Account"} •••• {pm.last4}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {pm.isDefault ? "Default" : "Backup"}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setPayoutMethods((prev) => prev.filter((m) => m.id !== pm.id))}
+                      >
+                        <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                {showAddPayout ? (
+                  <div className="mt-3 space-y-3 rounded-lg border p-3">
+                    <p className="text-sm font-medium">Add Payout Account</p>
+                    <Input
+                      placeholder="Bank name"
+                      value={newPayoutBank}
+                      onChange={(e) => setNewPayoutBank(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Account number (last 4 digits)"
+                      maxLength={4}
+                      value={newPayoutLast4}
+                      onChange={(e) => setNewPayoutLast4(e.target.value.replace(/\D/g, ""))}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        disabled={newPayoutLast4.length !== 4}
+                        onClick={() => {
+                          setPayoutMethods((prev) => [
+                            ...prev,
+                            {
+                              id: `po-${Date.now()}`,
+                              type: "bank_account",
+                              last4: newPayoutLast4,
+                              bankName: newPayoutBank || "Bank Account",
+                              isDefault: prev.length === 0,
+                              createdAt: new Date().toLocaleDateString(),
+                            },
+                          ])
+                          setNewPayoutLast4("")
+                          setNewPayoutBank("")
+                          setShowAddPayout(false)
+                        }}
+                      >
+                        Add Account
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => { setShowAddPayout(false); setNewPayoutLast4(""); setNewPayoutBank("") }}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => setShowAddPayout(true)}
+                  >
+                    <Plus className="mr-1 size-4" />
+                    Add Payout Method
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         <Separator className="my-6" />
 
