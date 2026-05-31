@@ -29,11 +29,13 @@ interface NavHeaderProps {
 
 const shipperLinks: NavLink[] = [
   { href: "/dashboard", label: "My Moves" },
+  { href: "/schedule", label: "Schedule" },
   { href: "/contracts", label: "Contracts" },
 ]
 
 const transporterLinks: NavLink[] = [
   { href: "/moves", label: "Available Moves" },
+  { href: "/schedule", label: "Schedule" },
   { href: "/my-offers", label: "My Offers" },
   { href: "/contracts", label: "Contracts" },
 ]
