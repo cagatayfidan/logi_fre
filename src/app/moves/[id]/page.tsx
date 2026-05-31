@@ -140,13 +140,23 @@ export default function MoveDetailPage() {
                 .join("")}
             </div>
             <div>
-              <p className="text-sm font-medium">{move.shipperName}</p>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Star className="size-3.5 fill-amber-500 text-amber-500" />
-                <span>
-                  {move.shipperRating} ({move.shipperReviewCount})
-                </span>
-              </div>
+              <Link
+                href={`/shippers/${move.shipperId}`}
+                className="text-sm font-medium hover:underline"
+              >
+                {move.shipperName}
+              </Link>
+              {move.shipperReviewCount >= 3 && (
+                <Link
+                  href={`/shippers/${move.shipperId}`}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <Star className="size-3.5 fill-yellow-500 text-yellow-500" />
+                  <span>
+                    {move.shipperRating.toFixed(1)} ({move.shipperReviewCount} reviews)
+                  </span>
+                </Link>
+              )}
             </div>
           </CardContent>
         </Card>

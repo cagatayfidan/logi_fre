@@ -210,12 +210,14 @@ export default function OffersPage() {
                         </div>
                         <div>
                           <p className="font-medium">{offer.transporterName}</p>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Star className="size-3.5 fill-amber-500 text-amber-500" />
-                            <span>
-                              {offer.transporterRating} ({offer.transporterReviewCount} reviews)
-                            </span>
-                          </div>
+                          {offer.transporterReviewCount >= 3 && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Star className="size-3.5 fill-yellow-500 text-yellow-500" />
+                              <span>
+                                {offer.transporterRating.toFixed(1)} ({offer.transporterReviewCount} reviews)
+                              </span>
+                            </div>
+                          )}
                           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                             {offer.insurance && <span>✅ Insured</span>}
                             {offer.loadingHelp && <span>💪 Loading help</span>}

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Search, MapPin, Calendar, Package2, DollarSign } from "lucide-react"
+import { Search, MapPin, Calendar, Package2, DollarSign, Star } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -92,6 +92,17 @@ export default function AvailableMovesPage() {
                         <DollarSign className="size-4" />
                         <span>Offers: {move.offerCount}</span>
                       </div>
+                      {move.shipperReviewCount >= 3 && (
+                        <Link
+                          href={`/shippers/${move.shipperId}`}
+                          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                        >
+                          <Star className="size-4 fill-yellow-500 text-yellow-500" />
+                          <span>
+                            {move.shipperRating.toFixed(1)} ({move.shipperReviewCount} reviews)
+                          </span>
+                        </Link>
+                      )}
                     </div>
                     <Link href={`/moves/${move.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
                       View Details →
