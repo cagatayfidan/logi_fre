@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, MapPin, Calendar, Package2, Circle, CheckCircle, XCircle } from "lucide-react"
+import { ArrowLeft, MapPin, Calendar, Package2, Circle, CheckCircle, XCircle, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -157,6 +157,16 @@ export default function ContractDetailPage() {
             <div className="flex justify-between text-muted-foreground">
               <span>Created</span>
               <span>{contract.createdAt}</span>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <ShieldCheck className="size-4 text-emerald-600" />
+                Payment
+              </span>
+              <Badge variant={status === "completed" ? "default" : status === "cancelled" ? "destructive" : "outline"}>
+                {status === "completed" ? "Released" : status === "cancelled" ? "Refunded" : "Escrow Hold"}
+              </Badge>
             </div>
           </CardContent>
         </Card>
