@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Truck, Package, Menu, X } from "lucide-react"
+import { Truck, Package, Menu, X, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -28,13 +28,13 @@ interface NavHeaderProps {
 
 const shipperLinks: NavLink[] = [
   { href: "/dashboard", label: "My Moves" },
-  { href: "/contracts/C-001", label: "Contracts" },
+  { href: "/contracts", label: "Contracts" },
 ]
 
 const transporterLinks: NavLink[] = [
   { href: "/moves", label: "Available Moves" },
   { href: "/my-offers", label: "My Offers" },
-  { href: "/contracts/C-001", label: "Contracts" },
+  { href: "/contracts", label: "Contracts" },
 ]
 
 export function NavHeader({ role, userName }: NavHeaderProps) {
@@ -74,6 +74,10 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <button className="relative flex size-8 items-center justify-center">
+            <Bell className="size-5 text-muted-foreground" />
+            <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" />
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8 rounded-full" />}>
               <Avatar className="size-8">

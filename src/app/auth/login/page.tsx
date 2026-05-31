@@ -54,17 +54,30 @@ export default function LoginPage() {
                 <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
                 <FieldError errors={[errors.password]} />
               </Field>
+              <div className="flex justify-end">
+                <Link href="/auth/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <Button type="submit" className="w-full">
                 Sign In
               </Button>
             </FieldGroup>
           </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            No account?{" "}
-            <Link href="/auth/register" className="font-medium text-primary hover:underline">
-              Sign Up
-            </Link>
-          </p>
+          <div className="mt-4 space-y-2 text-center text-sm text-muted-foreground">
+            <p>
+              No account?{" "}
+              <Link href="/auth/register" className="font-medium text-primary hover:underline">
+                Sign Up
+              </Link>
+            </p>
+            <p>
+              Didn&apos;t receive verification email?{" "}
+              <Link href="/auth/verify-email" className="font-medium text-primary hover:underline">
+                Resend
+              </Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

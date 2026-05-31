@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X, ImageIcon } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Stepper } from "@/components/stepper"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
+import { getMoveById } from "@/lib/data"
 
 const steps = [
   { label: "Addresses" },
@@ -46,21 +47,34 @@ const presetItems = [
   { name: "Other", icon: MoreHorizontal },
 ]
 
-export default function CreateMovePage() {
+export default function EditMovePage() {
+  const params = useParams()
+  const existing = getMoveById(params.id as string)
+
   const [currentStep, setCurrentStep] = useState(0)
-  const [origin, setOrigin] = useState("")
-  const [destination, setDestination] = useState("")
-  const [pickupDate, setPickupDate] = useState("")
-  const [pickupTimeStart, setPickupTimeStart] = useState("")
-  const [pickupTimeEnd, setPickupTimeEnd] = useState("")
-  const [deliveryDate, setDeliveryDate] = useState("")
-  const [deliveryTimeStart, setDeliveryTimeStart] = useState("")
-  const [deliveryTimeEnd, setDeliveryTimeEnd] = useState("")
-  const [items, setItems] = useState<FormItem[]>([])
+  const [origin, setOrigin] = useState(existing?.origin ?? "")
+  const [destination, setDestination] = useState(existing?.destination ?? "")
+  const [pickupDate, setPickupDate] = useState(existing?.pickupDate ?? "")
+  const [pickupTimeStart, setPickupTimeStart] = useState(existing?.pickupTimeStart ?? "09:00")
+  const [pickupTimeEnd, setPickupTimeEnd] = useState(existing?.pickupTimeEnd ?? "12:00")
+  const [deliveryDate, setDeliveryDate] = useState(existing?.deliveryDate ?? "")
+  const [deliveryTimeStart, setDeliveryTimeStart] = useState(existing?.deliveryTimeStart ?? "13:00")
+  const [deliveryTimeEnd, setDeliveryTimeEnd] = useState(existing?.deliveryTimeEnd ?? "17:00")
+  const [items, setItems] = useState<FormItem[]>(
+    existing?.items.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, weight: i.weight, fragile: i.fragile })) ?? []
+  )
   const [photos, setPhotos] = useState<FormPhoto[]>([])
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  if (!existing) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Move not found</p>
+      </div>
+    )
+  }
 
   function addItem(name: string) {
     setItems([...items, { id: `item-${Date.now()}`, name, quantity: 1, weight: 10, fragile: false }])
@@ -124,8 +138,9 @@ export default function CreateMovePage() {
     setErrors({})
   }
 
-  function handlePublish() {
-    window.location.href = "/dashboard"
+  function handleSave() {
+    if (!existing) return
+    window.location.href = `/moves/${existing.id}`
   }
 
   const totalWeight = items.reduce((sum, item) => sum + item.weight * item.quantity, 0)
@@ -133,12 +148,15 @@ export default function CreateMovePage() {
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl px-4 py-6">
-      <Link href="/dashboard" className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        href={`/moves/${existing.id}`}
+        className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" />
-        Back to Dashboard
+        Back to Move Detail
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold">Post a Move</h1>
+      <h1 className="mb-6 text-2xl font-bold">Edit Move Request</h1>
 
       <Stepper steps={steps} currentStep={currentStep} className="mb-8" />
 
@@ -199,14 +217,12 @@ export default function CreateMovePage() {
                   <div className="flex items-center gap-2">
                     <Input
                       type="time"
-                      defaultValue="09:00"
                       value={pickupTimeStart}
                       onChange={(e) => setPickupTimeStart(e.target.value)}
                     />
                     <span className="text-muted-foreground">to</span>
                     <Input
                       type="time"
-                      defaultValue="12:00"
                       value={pickupTimeEnd}
                       onChange={(e) => setPickupTimeEnd(e.target.value)}
                     />
@@ -228,14 +244,12 @@ export default function CreateMovePage() {
                   <div className="flex items-center gap-2">
                     <Input
                       type="time"
-                      defaultValue="13:00"
                       value={deliveryTimeStart}
                       onChange={(e) => setDeliveryTimeStart(e.target.value)}
                     />
                     <span className="text-muted-foreground">to</span>
                     <Input
                       type="time"
-                      defaultValue="17:00"
                       value={deliveryTimeEnd}
                       onChange={(e) => setDeliveryTimeEnd(e.target.value)}
                     />
@@ -303,9 +317,7 @@ export default function CreateMovePage() {
                                 type="number"
                                 className="w-16"
                                 value={item.quantity}
-                                onChange={(e) =>
-                                  updateItem(item.id, "quantity", Number(e.target.value))
-                                }
+                                onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value))}
                               />
                             </div>
                             <div className="flex items-center gap-2">
@@ -314,9 +326,7 @@ export default function CreateMovePage() {
                                 type="number"
                                 className="w-20"
                                 value={item.weight}
-                                onChange={(e) =>
-                                  updateItem(item.id, "weight", Number(e.target.value))
-                                }
+                                onChange={(e) => updateItem(item.id, "weight", Number(e.target.value))}
                               />
                               <span className="text-xs text-muted-foreground">kg</span>
                             </div>
@@ -324,9 +334,7 @@ export default function CreateMovePage() {
                               <Checkbox
                                 id={`fragile-${item.id}`}
                                 checked={item.fragile}
-                                onCheckedChange={(checked) =>
-                                  updateItem(item.id, "fragile", checked === true)
-                                }
+                                onCheckedChange={(checked) => updateItem(item.id, "fragile", checked === true)}
                               />
                               <Label htmlFor={`fragile-${item.id}`} className="text-xs">
                                 Fragile
@@ -338,9 +346,7 @@ export default function CreateMovePage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Use the presets above or add items manually
-                  </p>
+                  <p className="text-sm text-muted-foreground">Use the presets above or add items manually</p>
                 )}
                 <FieldError errors={[{ message: errors.items }]} />
               </FieldGroup>
@@ -352,7 +358,6 @@ export default function CreateMovePage() {
                 <p className="mb-3 text-xs text-muted-foreground">
                   Add photos of your items to help transporters assess the move
                 </p>
-
                 <div
                   className={cn(
                     "relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition-colors",
@@ -378,16 +383,11 @@ export default function CreateMovePage() {
                     }}
                   />
                 </div>
-
                 {photos.length > 0 && (
                   <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {photos.map((photo) => (
                       <div key={photo.id} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
-                        <img
-                          src={photo.url}
-                          alt={photo.name}
-                          className="size-full object-cover"
-                        />
+                        <img src={photo.url} alt={photo.name} className="size-full object-cover" />
                         <button
                           onClick={() => removePhoto(photo.id)}
                           className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100"
@@ -409,8 +409,8 @@ export default function CreateMovePage() {
         {currentStep === 3 && (
           <>
             <CardHeader>
-              <CardTitle>Review Your Move Request</CardTitle>
-              <CardDescription>Make sure everything looks right before publishing</CardDescription>
+              <CardTitle>Review Changes</CardTitle>
+              <CardDescription>Review your updated move request before saving</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -438,16 +438,26 @@ export default function CreateMovePage() {
                       {item.fragile ? " 🔸 Fragile" : ""}
                     </p>
                   ))}
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Total: {totalWeight}kg / ~{estimatedVolume}
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">Total: {totalWeight}kg / ~{estimatedVolume}</p>
                 </div>
+                {photos.length > 0 && (
+                  <>
+                    <Separator />
+                    <div>
+                      <p className="text-sm font-medium">📸 Photos ({photos.length})</p>
+                      <div className="mt-2 grid grid-cols-4 gap-2">
+                        {photos.map((photo) => (
+                          <div key={photo.id} className="aspect-square overflow-hidden rounded-md border border-border">
+                            <img src={photo.url} alt={photo.name} className="size-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
                 <Separator />
                 <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-                  <p>
-                    ⚠️ By publishing, transporters in your area can view and make offers on your
-                    move request.
-                  </p>
+                  <p>⚠️ By saving changes, transporters will see your updated move request.</p>
                 </div>
               </div>
             </CardContent>
@@ -466,12 +476,7 @@ export default function CreateMovePage() {
           {currentStep < 3 ? (
             <Button onClick={handleNext}>Next</Button>
           ) : (
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handlePublish}>
-                Save as Draft
-              </Button>
-              <Button onClick={handlePublish}>Publish Move Request</Button>
-            </div>
+            <Button onClick={handleSave}>Save Changes</Button>
           )}
         </CardFooter>
       </Card>
