@@ -31,6 +31,7 @@ const shipperLinks: NavLink[] = [
   { href: "/dashboard", label: "My Moves" },
   { href: "/schedule", label: "Schedule" },
   { href: "/contracts", label: "Contracts" },
+  { href: "/payments", label: "Payments" },
 ]
 
 const transporterLinks: NavLink[] = [
@@ -38,6 +39,7 @@ const transporterLinks: NavLink[] = [
   { href: "/schedule", label: "Schedule" },
   { href: "/my-offers", label: "My Offers" },
   { href: "/contracts", label: "Contracts" },
+  { href: "/payments", label: "Payments" },
 ]
 
 export function NavHeader({ role, userName }: NavHeaderProps) {
