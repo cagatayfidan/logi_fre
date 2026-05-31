@@ -3,17 +3,18 @@
 import { useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Star } from "lucide-react"
+import { ArrowLeft, Star, Clock } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getMoveById, getOffersByMoveId } from "@/lib/data"
+import { getMoveById, getOffersByMoveId, isOfferExpired } from "@/lib/data"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   pending: { label: "Pending", variant: "outline" },
   accepted: { label: "Accepted", variant: "default" },
   rejected: { label: "Rejected", variant: "destructive" },
+  expired: { label: "Expired", variant: "secondary" },
 }
 
 export default function OffersPage() {
@@ -91,12 +92,18 @@ export default function OffersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <p className="text-lg font-bold">${offer.price.toFixed(2)}</p>
-                    <Badge variant={statusConfig[offer.status].variant}>
-                      {statusConfig[offer.status].label}
-                    </Badge>
-                  </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <p className="text-lg font-bold">${offer.price.toFixed(2)}</p>
+                      {offer.expiresAt && !isOfferExpired(offer) && (
+                        <div className="flex items-center gap-1 text-xs text-amber-600">
+                          <Clock className="size-3" />
+                          <span>Expires soon</span>
+                        </div>
+                      )}
+                      <Badge variant={statusConfig[isOfferExpired(offer) ? "expired" : offer.status].variant}>
+                        {isOfferExpired(offer) ? "Expired" : statusConfig[offer.status].label}
+                      </Badge>
+                    </div>
                 </div>
                 <Link href={`/moves/${move.id}/offers/${offer.id}`} className={buttonVariants({ variant: "outline", size: "default" }) + " mt-3 w-full text-center"}>
                   View Offer

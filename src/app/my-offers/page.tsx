@@ -9,12 +9,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
-import { mockOffers, getMoveById } from "@/lib/data"
+import { mockOffers, getMoveById, isOfferExpired } from "@/lib/data"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   pending: { label: "Pending", variant: "outline" },
   accepted: { label: "Accepted", variant: "default" },
   rejected: { label: "Rejected", variant: "destructive" },
+  expired: { label: "Expired", variant: "secondary" },
 }
 
 export default function MyOffersPage() {
@@ -78,8 +79,14 @@ export default function MyOffersPage() {
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2">
-                            <Badge variant={statusConfig[offer.status].variant}>
-                              {statusConfig[offer.status].label}
+                            {offer.expiresAt && !isOfferExpired(offer) && (
+                              <div className="flex items-center gap-1 text-xs text-amber-600">
+                                <Clock className="size-3" />
+                                <span>Expires soon</span>
+                              </div>
+                            )}
+                            <Badge variant={statusConfig[isOfferExpired(offer) ? "expired" : offer.status].variant}>
+                              {isOfferExpired(offer) ? "Expired" : statusConfig[offer.status].label}
                             </Badge>
                             {offer.status === "accepted" ? (
                               <Link href={`/contracts/C-${offer.moveId === "MR-002" ? "001" : "002"}`} className={buttonVariants({ variant: "outline", size: "sm" })}>

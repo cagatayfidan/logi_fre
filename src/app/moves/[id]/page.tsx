@@ -1,12 +1,22 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useState } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, MapPin, Calendar, Star } from "lucide-react"
-import { buttonVariants } from "@/components/ui/button"
+import { ArrowLeft, MapPin, Calendar, Star, Pencil, XCircle } from "lucide-react"
+import { buttonVariants, Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { getMoveById } from "@/lib/data"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
@@ -17,7 +27,9 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 
 export default function MoveDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const move = getMoveById(params.id as string)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   if (!move) {
     return (
@@ -25,6 +37,11 @@ export default function MoveDetailPage() {
         <p className="text-muted-foreground">Move not found</p>
       </div>
     )
+  }
+
+  function handleCancel() {
+    setCancelOpen(false)
+    router.push("/dashboard")
   }
 
   return (
@@ -133,6 +150,38 @@ export default function MoveDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        {move.status === "active" && (
+          <div className="flex gap-3">
+            <Link href={`/moves/${move.id}/edit`} className={buttonVariants({ variant: "outline", size: "default" }) + " flex-1 text-center"}>
+              <Pencil className="mr-2 size-4" data-icon="inline-start" />
+              Edit
+            </Link>
+            <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+              <DialogTrigger render={<Button variant="destructive" className="flex-1" />}>
+                <XCircle className="mr-2 size-4" data-icon="inline-start" />
+                Cancel Request
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Cancel Move Request</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to cancel this move request? This action cannot be undone.
+                    All offers associated with this move will be voided.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2">
+                  <Button variant="outline" onClick={() => setCancelOpen(false)}>
+                    Keep Request
+                  </Button>
+                  <Button variant="destructive" onClick={handleCancel}>
+                    Yes, Cancel Move
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <Link href={`/moves/${move.id}/offers`} className={buttonVariants({ variant: "default", size: "default" }) + " flex-1 text-center"}>

@@ -8,8 +8,25 @@ export interface Item {
 }
 
 export type MoveStatus = "active" | "completed" | "draft"
-export type OfferStatus = "pending" | "accepted" | "rejected"
+export type OfferStatus = "pending" | "accepted" | "rejected" | "expired"
 export type UserRole = "shipper" | "transporter"
+export type ContractStatus = "pending_checkin" | "checked_in" | "in_transit" | "delivered" | "completed" | "cancelled"
+
+export interface Photo {
+  id: string
+  name: string
+  url: string
+  size?: number
+}
+
+export interface Message {
+  id: string
+  senderId: string
+  senderName: string
+  text: string
+  price?: number
+  createdAt: string
+}
 
 export interface User {
   id: string
@@ -63,6 +80,8 @@ export interface Offer {
   loadingHelp: boolean
   status: OfferStatus
   createdAt: string
+  expiresAt?: string
+  messages?: Message[]
 }
 
 export interface Contract {
@@ -74,8 +93,9 @@ export interface Contract {
   transporterId: string
   transporterName: string
   agreedPrice: number
-  status: "active" | "completed" | "cancelled"
+  status: ContractStatus
   createdAt: string
+  cancelReason?: string
 }
 
 export const currentUser: User = {
@@ -248,6 +268,12 @@ export const mockOffers: Offer[] = [
     loadingHelp: true,
     status: "pending",
     createdAt: "June 2, 2026",
+    expiresAt: "2026-06-10T23:59:59Z",
+    messages: [
+      { id: "msg-1", senderId: "user-2", senderName: "Mike's Transport", text: "Can do it in the morning slot. Have a 10ft truck with ramp. Includes 2 movers.", createdAt: "June 2, 2026, 10:00" },
+      { id: "msg-2", senderId: "user-1", senderName: "John Doe", text: "Can you do $400?", price: 400, createdAt: "June 2, 2026, 14:00" },
+      { id: "msg-3", senderId: "user-2", senderName: "Mike's Transport", text: "Lowest I can go is $425.", price: 425, createdAt: "June 2, 2026, 15:30" },
+    ],
   },
   {
     id: "offer-2",
@@ -263,6 +289,7 @@ export const mockOffers: Offer[] = [
     loadingHelp: true,
     status: "pending",
     createdAt: "June 2, 2026",
+    expiresAt: "2026-06-31T23:59:59Z",
   },
   {
     id: "offer-3",
@@ -276,8 +303,9 @@ export const mockOffers: Offer[] = [
     message: "Can help with your move. Have a cargo van available. Driver only, no additional movers.",
     insurance: false,
     loadingHelp: false,
-    status: "pending",
+    status: "expired",
     createdAt: "June 3, 2026",
+    expiresAt: "2026-05-25T23:59:59Z",
   },
   {
     id: "offer-4",
@@ -336,7 +364,7 @@ export const mockContracts: Contract[] = [
     transporterId: "user-2",
     transporterName: "Mike's Transport",
     agreedPrice: 800,
-    status: "active",
+    status: "pending_checkin",
     createdAt: "June 2, 2026",
   },
   {
@@ -350,6 +378,30 @@ export const mockContracts: Contract[] = [
     agreedPrice: 320,
     status: "completed",
     createdAt: "May 21, 2026",
+  },
+  {
+    id: "C-003",
+    moveId: "MR-001",
+    offerId: "offer-1",
+    shipperId: "user-1",
+    shipperName: "John Doe",
+    transporterId: "user-2",
+    transporterName: "Mike's Transport",
+    agreedPrice: 450,
+    status: "in_transit",
+    createdAt: "June 3, 2026",
+  },
+  {
+    id: "C-004",
+    moveId: "MR-004",
+    offerId: "offer-2",
+    shipperId: "user-3",
+    shipperName: "Alice Smith",
+    transporterId: "user-5",
+    transporterName: "FastMove Inc.",
+    agreedPrice: 520,
+    status: "delivered",
+    createdAt: "June 6, 2026",
   },
 ]
 
@@ -372,3 +424,59 @@ export function getContractById(id: string): Contract | undefined {
 export function getContractByMoveAndOffer(moveId: string, offerId: string): Contract | undefined {
   return mockContracts.find((c) => c.moveId === moveId && c.offerId === offerId)
 }
+
+export function getContractsByRole(userId: string): Contract[] {
+  return mockContracts.filter((c) => c.shipperId === userId || c.transporterId === userId)
+}
+
+export function isOfferExpired(offer: Offer): boolean {
+  if (!offer.expiresAt) return false
+  return new Date(offer.expiresAt) < new Date()
+}
+
+export function getTimeUntil(isoString: string): { days: number; hours: number; minutes: number; totalMs: number } {
+  const diff = new Date(isoString).getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, totalMs: 0 }
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  return { days, hours, minutes, totalMs: diff }
+}
+
+export const contractTimelineSteps = [
+  { key: "pending_checkin", label: "Pending Check-in" },
+  { key: "checked_in", label: "Checked In" },
+  { key: "in_transit", label: "In Transit" },
+  { key: "delivered", label: "Delivered" },
+  { key: "completed", label: "Completed" },
+] as const
+
+export function getContractTimelineStepIndex(status: ContractStatus): number {
+  const order = ["pending_checkin", "checked_in", "in_transit", "delivered", "completed"]
+  if (status === "cancelled") return -1
+  return order.indexOf(status)
+}
+
+export function getContractActionRole(status: ContractStatus): "transporter" | "shipper" | null {
+  if (status === "checked_in" || status === "in_transit" || status === "pending_checkin") return "transporter"
+  if (status === "delivered") return "shipper"
+  return null
+}
+
+export function getContractActionLabel(status: ContractStatus): string {
+  const map: Record<string, string> = {
+    pending_checkin: "Check In",
+    checked_in: "Mark In Transit",
+    in_transit: "Confirm Delivery",
+    delivered: "Confirm Receipt",
+  }
+  return map[status] || ""
+}
+
+export const cancelContractReasons = [
+  "Change of plans — no longer need the move",
+  "Found a better offer",
+  "Transporter is not responding",
+  "Schedule conflict",
+  "Other reason",
+]
