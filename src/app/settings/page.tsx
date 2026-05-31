@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { currentUser, getPaymentMethods, getPayoutMethods } from "@/lib/data"
 import type { PaymentMethod, PayoutMethod } from "@/lib/data"
+import { useT } from "@/lib/i18n-provider"
+import { setLocale, getLocaleLabel, type Locale, locales } from "@/lib/i18n"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -64,6 +66,7 @@ interface NotificationPrefs {
 }
 
 export default function SettingsPage() {
+  const { t, locale } = useT()
   const user = currentUser
 
   const profileForm = useForm<ProfileForm>({
@@ -608,16 +611,15 @@ export default function SettingsPage() {
               </Field>
 
               <Field>
-                <FieldLabel>Language</FieldLabel>
-                <Select value={language} onValueChange={handleLanguageChange}>
+                <FieldLabel>{t('settings.language')}</FieldLabel>
+                <Select value={locale} onValueChange={(v) => { if (v) setLocale(v as Locale) }}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="english">English</SelectItem>
-                    <SelectItem value="turkce">Türkçe</SelectItem>
-                    <SelectItem value="deutsch">Deutsch</SelectItem>
-                    <SelectItem value="francais">Français</SelectItem>
+                    {locales.map((l) => (
+                      <SelectItem key={l} value={l}>{getLocaleLabel(l)}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>

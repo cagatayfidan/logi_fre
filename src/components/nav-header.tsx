@@ -16,37 +16,34 @@ import {
 import { cn } from "@/lib/utils"
 import { useState, useMemo } from "react"
 import { getUnreadNotificationCount, currentUser } from "@/lib/data"
-
-interface NavLink {
-  href: string
-  label: string
-}
+import { useT } from "@/lib/i18n-provider"
 
 interface NavHeaderProps {
   role: "shipper" | "transporter" | "admin"
   userName: string
 }
 
-const shipperLinks: NavLink[] = [
-  { href: "/dashboard", label: "My Moves" },
-  { href: "/schedule", label: "Schedule" },
-  { href: "/contracts", label: "Contracts" },
-  { href: "/payments", label: "Payments" },
-]
-
-const transporterLinks: NavLink[] = [
-  { href: "/moves", label: "Available Moves" },
-  { href: "/schedule", label: "Schedule" },
-  { href: "/my-offers", label: "My Offers" },
-  { href: "/contracts", label: "Contracts" },
-  { href: "/payments", label: "Payments" },
-]
-
 export function NavHeader({ role, userName }: NavHeaderProps) {
+  const { t } = useT()
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const links = role === "admin" ? shipperLinks : role === "shipper" ? shipperLinks : transporterLinks
+
+  const links: { href: string; label: string }[] = role === "transporter"
+    ? [
+        { href: "/moves", label: t('nav.browseMoves') },
+        { href: "/schedule", label: t('nav.schedule') },
+        { href: "/my-offers", label: t('nav.myOffers') },
+        { href: "/contracts", label: t('nav.contracts') },
+        { href: "/payments", label: t('nav.payments') },
+      ]
+    : [
+        { href: "/dashboard", label: t('nav.myMoves') },
+        { href: "/schedule", label: t('nav.schedule') },
+        { href: "/contracts", label: t('nav.contracts') },
+        { href: "/payments", label: t('nav.payments') },
+      ]
+
   const unreadCount = useMemo(() => getUnreadNotificationCount(currentUser.id), [])
   const initials = userName
     .split(" ")
@@ -59,7 +56,7 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
         <Link href={role === "transporter" ? "/moves" : "/dashboard"} className="flex items-center gap-2">
           <Truck className="size-6 text-primary" />
-          <span className="font-heading text-lg font-bold tracking-tight">Haul</span>
+          <span className="font-heading text-lg font-bold tracking-tight">{t('nav.brand')}</span>
         </Link>
 
         <nav className="ml-8 hidden items-center gap-6 md:flex">
@@ -108,10 +105,10 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                Dashboard
+                {t('nav.dashboard')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/auth/login")}>
-                Sign Out
+                {t('nav.signOut')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
