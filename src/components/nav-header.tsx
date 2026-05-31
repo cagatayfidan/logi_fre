@@ -23,7 +23,7 @@ interface NavLink {
 }
 
 interface NavHeaderProps {
-  role: "shipper" | "transporter"
+  role: "shipper" | "transporter" | "admin"
   userName: string
 }
 
@@ -46,7 +46,7 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const links = role === "shipper" ? shipperLinks : transporterLinks
+  const links = role === "admin" ? shipperLinks : role === "shipper" ? shipperLinks : transporterLinks
   const unreadCount = useMemo(() => getUnreadNotificationCount(currentUser.id), [])
   const initials = userName
     .split(" ")
@@ -57,7 +57,7 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
-        <Link href={role === "shipper" ? "/dashboard" : "/moves"} className="flex items-center gap-2">
+        <Link href={role === "transporter" ? "/moves" : "/dashboard"} className="flex items-center gap-2">
           <Truck className="size-6 text-primary" />
           <span className="font-heading text-lg font-bold tracking-tight">Haul</span>
         </Link>
@@ -107,7 +107,7 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push(role === "shipper" ? "/dashboard" : "/moves")}>
+              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                 Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/auth/login")}>
