@@ -14,7 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { getUnreadNotificationCount, currentUser } from "@/lib/data"
 
 interface NavLink {
   href: string
@@ -42,6 +43,7 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
   const links = role === "shipper" ? shipperLinks : transporterLinks
+  const unreadCount = useMemo(() => getUnreadNotificationCount(currentUser.id), [])
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -74,10 +76,17 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <button className="relative flex size-8 items-center justify-center">
+          <Link
+            href="/notifications"
+            className="relative flex size-8 items-center justify-center"
+          >
             <Bell className="size-5 text-muted-foreground" />
-            <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" />
-          </button>
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="size-8 rounded-full" />}>
               <Avatar className="size-8">

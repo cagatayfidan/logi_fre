@@ -12,6 +12,29 @@ export type OfferStatus = "pending" | "accepted" | "rejected" | "expired"
 export type UserRole = "shipper" | "transporter"
 export type ContractStatus = "pending_checkin" | "checked_in" | "in_transit" | "delivered" | "completed" | "cancelled"
 
+export type NotificationType =
+  | "offer_received"
+  | "offer_accepted"
+  | "offer_rejected"
+  | "counter_offer"
+  | "contract_status"
+  | "move_reminder"
+  | "payment"
+  | "review"
+  | "system"
+
+export interface Notification {
+  id: string
+  userId: string
+  type: NotificationType
+  title: string
+  message: string
+  isRead: boolean
+  relatedId?: string
+  relatedModel?: string
+  createdAt: string
+}
+
 export interface Photo {
   id: string
   name: string
@@ -480,3 +503,103 @@ export const cancelContractReasons = [
   "Schedule conflict",
   "Other reason",
 ]
+
+export const notificationTypeIcons: Record<NotificationType, string> = {
+  offer_received: "💰",
+  offer_accepted: "✅",
+  offer_rejected: "❌",
+  counter_offer: "🤝",
+  contract_status: "📋",
+  move_reminder: "📅",
+  payment: "💳",
+  review: "⭐",
+  system: "🔔",
+}
+
+export const mockNotifications: Notification[] = [
+  {
+    id: "notif-1",
+    userId: "user-1",
+    type: "offer_received",
+    title: "New Offer Received",
+    message: "Mike's Transport submitted an offer of $450 for your move Home → Apartment.",
+    isRead: false,
+    relatedId: "MR-001",
+    relatedModel: "MoveRequest",
+    createdAt: "2026-05-31T09:30:00Z",
+  },
+  {
+    id: "notif-2",
+    userId: "user-1",
+    type: "offer_received",
+    title: "New Offer Received",
+    message: "FastMove Inc. submitted an offer of $520 for your move Home → Apartment.",
+    isRead: false,
+    relatedId: "MR-001",
+    relatedModel: "MoveRequest",
+    createdAt: "2026-05-31T08:15:00Z",
+  },
+  {
+    id: "notif-3",
+    userId: "user-1",
+    type: "counter_offer",
+    title: "Counter-Offer Received",
+    message: "Mike's Transport countered with $425 on your offer for Home → Apartment.",
+    isRead: false,
+    relatedId: "offer-1",
+    relatedModel: "Offer",
+    createdAt: "2026-05-30T14:00:00Z",
+  },
+  {
+    id: "notif-4",
+    userId: "user-1",
+    type: "contract_status",
+    title: "Contract Updated",
+    message: "Contract C-003 for Office → Warehouse is now In Transit.",
+    isRead: true,
+    relatedId: "C-003",
+    relatedModel: "Contract",
+    createdAt: "2026-05-29T11:00:00Z",
+  },
+  {
+    id: "notif-5",
+    userId: "user-2",
+    type: "offer_accepted",
+    title: "Offer Accepted",
+    message: "John Doe accepted your offer of $800 for Office → Warehouse.",
+    isRead: false,
+    relatedId: "offer-4",
+    relatedModel: "Offer",
+    createdAt: "2026-05-28T16:45:00Z",
+  },
+  {
+    id: "notif-6",
+    userId: "user-1",
+    type: "system",
+    title: "Welcome to Haul!",
+    message: "Welcome! Post your first move or browse available moves to get started.",
+    isRead: true,
+    createdAt: "2026-05-25T00:00:00Z",
+  },
+  {
+    id: "notif-7",
+    userId: "user-6",
+    type: "offer_rejected",
+    title: "Offer Not Accepted",
+    message: "Your offer of $380 for Home → Apartment was not accepted.",
+    isRead: true,
+    relatedId: "MR-001",
+    relatedModel: "MoveRequest",
+    createdAt: "2026-05-27T10:00:00Z",
+  },
+]
+
+export function getNotificationsForUser(userId: string): Notification[] {
+  return mockNotifications
+    .filter((n) => n.userId === userId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+}
+
+export function getUnreadNotificationCount(userId: string): number {
+  return mockNotifications.filter((n) => n.userId === userId && !n.isRead).length
+}
