@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, MapPin, Calendar, Package2, Circle, CheckCircle, XCircle, ShieldCheck } from "lucide-react"
+import { ArrowLeft, MapPin, Calendar, Package2, Circle, CheckCircle, XCircle, ShieldCheck, Star } from "lucide-react"
+import { StarRating } from "@/components/star-rating"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -60,6 +61,8 @@ export default function ContractDetailPage() {
   const [status, setStatus] = useState(contract?.status ?? "cancelled")
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
+  const [rating, setRating] = useState(0)
+  const [reviewSubmitted, setReviewSubmitted] = useState(false)
 
   if (!contract) {
     return (
@@ -216,6 +219,56 @@ export default function ContractDetailPage() {
             )}
           </CardContent>
         </Card>
+
+        {isCompleted && !reviewSubmitted && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Star className="size-4 text-muted-foreground" />
+                Rate Transporter
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-3 text-sm text-muted-foreground">
+                How was your experience with {contract.transporterName}?
+              </p>
+              <StarRating value={rating} onChange={setRating} size="md" />
+              <div className="mt-3 flex gap-2">
+                <Button
+                  size="sm"
+                  disabled={rating === 0}
+                  onClick={() => {
+                    setReviewSubmitted(true)
+                    setRating(rating)
+                  }}
+                >
+                  Submit Rating
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setReviewSubmitted(true)}
+                >
+                  Skip
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isCompleted && reviewSubmitted && rating > 0 && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Star className="size-5 fill-amber-500 text-amber-500" />
+                <div>
+                  <p className="text-sm font-medium">Rating submitted</p>
+                  <StarRating value={rating} readonly />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {!isCancelled && !isCompleted && (
           <div className="flex flex-col gap-3">
