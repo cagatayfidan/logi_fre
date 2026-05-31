@@ -32,6 +32,7 @@ import {
   getOfferById,
   contractTimelineSteps,
   getContractTimelineStepIndex,
+  currentUser,
   getContractActionRole,
   getContractActionLabel,
   cancelContractReasons,
@@ -62,6 +63,7 @@ export default function ContractDetailPage() {
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
   const [rating, setRating] = useState(0)
+  const [reviewComment, setReviewComment] = useState("")
   const [reviewSubmitted, setReviewSubmitted] = useState(false)
 
   if (!contract) {
@@ -225,7 +227,7 @@ export default function ContractDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Star className="size-4 text-muted-foreground" />
-                Rate Transporter
+                {currentUser.id === contract.shipperId ? "Rate Transporter" : "Rate Shipper"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -233,6 +235,13 @@ export default function ContractDetailPage() {
                 How was your experience with {contract.transporterName}?
               </p>
               <StarRating value={rating} onChange={setRating} size="md" />
+              <textarea
+                placeholder="Share your experience (optional)"
+                className="mt-3 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-ring"
+                rows={2}
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+              />
               <div className="mt-3 flex gap-2">
                 <Button
                   size="sm"
@@ -264,6 +273,7 @@ export default function ContractDetailPage() {
                 <div>
                   <p className="text-sm font-medium">Rating submitted</p>
                   <StarRating value={rating} readonly />
+                  {reviewComment && <p className="mt-1 text-xs text-muted-foreground">&ldquo;{reviewComment}&rdquo;</p>}
                 </div>
               </div>
             </CardContent>
