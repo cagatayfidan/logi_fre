@@ -2,10 +2,12 @@
 
 import { useState, useRef } from "react"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X, ImageIcon } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X, ImageIcon, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { SizeEstimationGuide } from "@/components/size-estimation-guide"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -61,6 +63,7 @@ export default function CreateMovePage() {
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [roomVolume, setRoomVolume] = useState(0)
 
   function addItem(name: string) {
     setItems([...items, { id: `item-${Date.now()}`, name, quantity: 1, weight: 10, fragile: false }])
@@ -129,7 +132,9 @@ export default function CreateMovePage() {
   }
 
   const totalWeight = items.reduce((sum, item) => sum + item.weight * item.quantity, 0)
-  const estimatedVolume = `${Math.ceil(totalWeight / 30)} m³`
+  const weightVolume = Math.ceil(totalWeight / 30)
+  const displayVolume = Math.max(weightVolume, roomVolume)
+  const estimatedVolume = `${displayVolume} m³`
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl px-4 py-6">
@@ -344,6 +349,24 @@ export default function CreateMovePage() {
                 )}
                 <FieldError errors={[{ message: errors.items }]} />
               </FieldGroup>
+
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Estimated volume: <strong>{estimatedVolume}</strong>
+                </p>
+                <Dialog>
+                  <DialogTrigger render={<Button variant="ghost" size="icon" className="size-6" />}>
+                    <Info className="size-4 text-muted-foreground" />
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg">
+                    <DialogTitle>Size Estimation Guide</DialogTitle>
+                    <SizeEstimationGuide
+                      currentVolume={displayVolume}
+                      onSelect={(v) => setRoomVolume(v)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
 
               <Separator />
 
