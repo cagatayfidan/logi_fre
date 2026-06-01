@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiDelete } from '../api-client'
+import { apiGet, apiPost, apiDelete, apiPatch, apiPut } from '../api-client'
 
 export interface PaymentMethod {
   id: string
@@ -55,6 +55,14 @@ export interface Invoice {
   status: string
 }
 
+export interface PayoutSchedule {
+  frequency: 'weekly' | 'biweekly' | 'monthly'
+  dayOfWeek?: number
+  dayOfMonth?: number
+  minimumPayoutAmount: number
+  isActive: boolean
+}
+
 export function fetchPaymentMethods(): Promise<PaymentMethod[]> {
   return apiGet<PaymentMethod[]>('/api/payment-methods')
 }
@@ -81,4 +89,16 @@ export function fetchEarnings(): Promise<Earnings> {
 
 export function fetchInvoice(paymentId: string): Promise<Invoice> {
   return apiGet<Invoice>(`/api/payments/${paymentId}/invoice`)
+}
+
+export function refundPayment(paymentId: string, reason?: string): Promise<Payment> {
+  return apiPost(`/api/payments/${paymentId}/refund`, { reason })
+}
+
+export function fetchPayoutSchedule(): Promise<PayoutSchedule> {
+  return apiGet<PayoutSchedule>('/api/payout-schedule')
+}
+
+export function updatePayoutSchedule(data: Partial<PayoutSchedule>): Promise<PayoutSchedule> {
+  return apiPut('/api/payout-schedule', data)
 }

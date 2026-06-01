@@ -1,4 +1,4 @@
-import { apiGet, apiPatch } from '../api-client'
+import { apiPatch } from '../api-client'
 
 export interface UserProfile {
   id: string
@@ -16,10 +16,14 @@ export interface UserProfile {
   }
 }
 
-export function fetchUserProfile(userId: string): Promise<UserProfile> {
-  return apiGet<UserProfile>(`/api/users/${userId}`)
+export function changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+  return apiPatch('/api/users/change-password', { currentPassword, newPassword })
 }
 
 export function updateNotificationPreferences(prefs: Partial<UserProfile['notificationPreferences']>): Promise<UserProfile> {
   return apiPatch<UserProfile>('/api/users/notification-preferences', prefs)
+}
+
+export function deleteAccount(): Promise<{ message: string }> {
+  return apiPatch('/api/users/account')
 }
