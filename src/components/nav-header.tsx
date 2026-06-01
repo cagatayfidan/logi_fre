@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Truck, Package, Menu, X, Bell } from "lucide-react"
+import { Truck, Package, Menu, X, Bell, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -14,20 +14,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { useState, useMemo } from "react"
-import { getUnreadNotificationCount, currentUser } from "@/lib/data"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth-context"
 import { useT } from "@/lib/i18n-provider"
+import { fetchUnreadCount } from "@/lib/api/notifications"
 
 interface NavHeaderProps {
-  role: "shipper" | "transporter" | "admin"
-  userName: string
+  role?: "shipper" | "transporter" | "admin"
+  userName?: string
 }
 
-export function NavHeader({ role, userName }: NavHeaderProps) {
+export function NavHeader({ role: propRole, userName: propUserName }: NavHeaderProps) {
   const { t } = useT()
+  const { user, loading, logout } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  const role = propRole || user?.role || "shipper"
+  const userName = propUserName || user?.name || "User"
+
+  useEffect(() => {
+    fetchUnreadCount()
+      .then((res) => setUnreadCount(res.count))
+      .catch(() => {})
+  }, [])
 
   const links: { href: string; label: string }[] = role === "transporter"
     ? [
@@ -44,7 +56,10 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
         { href: "/payments", label: t('nav.payments') },
       ]
 
-  const unreadCount = useMemo(() => getUnreadNotificationCount(currentUser.id), [])
+  if (role === "transporter") {
+    links.push({ href: "/earnings", label: t('nav.earnings') })
+  }
+
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -104,10 +119,11 @@ export function NavHeader({ role, userName }: NavHeaderProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+              <DropdownMenuItem onClick={() => router.push(role === "transporter" ? "/moves" : "/dashboard")}>
                 {t('nav.dashboard')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/auth/login")}>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => { logout(); router.push("/auth/login") }}>
                 {t('nav.signOut')}
               </DropdownMenuItem>
             </DropdownMenuContent>

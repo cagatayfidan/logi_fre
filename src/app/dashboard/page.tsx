@@ -9,9 +9,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
-import { mockMoves } from "@/lib/data"
 import { fetchMoves } from "@/lib/api/moves"
 import { useData } from "@/lib/use-data"
+import { useAuth } from "@/lib/auth-context"
 import { useT } from "@/lib/i18n-provider"
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
@@ -22,13 +22,14 @@ const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
 
 export default function DashboardPage() {
   const { t } = useT()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState("active")
-  const { data: apiMoves, loading } = useData(fetchMoves, mockMoves)
-  const moves = apiMoves.filter((m) => m.status === activeTab)
+  const { data: apiMoves, loading } = useData(fetchMoves, [])
+  const moves = apiMoves.filter((m) => m.shipperId === user?.id && m.status === activeTab)
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role="shipper" userName="John Doe" />
+      <NavHeader />
       <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">{t('moves.title')}</h1>
@@ -45,7 +46,11 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4">
-            {moves.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : moves.length === 0 ? (
               <EmptyState
                 icon="📦"
                 title={t('dashboard.noUpcoming')}

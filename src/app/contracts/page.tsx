@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { FileText, MapPin, Calendar, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
@@ -9,11 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
-import { mockContracts, getMoveById, ContractStatus } from "@/lib/data"
 import { fetchContracts } from "@/lib/api/contracts"
+import { fetchMoves, type MoveRequest } from "@/lib/api/moves"
 import { useData } from "@/lib/use-data"
+import { useAuth } from "@/lib/auth-context"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
+  active: { label: "Pending Check-in", variant: "outline" },
   pending_checkin: { label: "Pending Check-in", variant: "outline" },
   checked_in: { label: "Checked In", variant: "default" },
   in_transit: { label: "In Transit", variant: "default" },
@@ -29,11 +31,23 @@ const filters = [
   { value: "cancelled", label: "Cancelled" },
 ]
 
-const activeStatuses: ContractStatus[] = ["pending_checkin", "checked_in", "in_transit", "delivered"]
+const activeStatuses = ["pending_checkin", "checked_in", "in_transit", "delivered", "active"]
 
 export default function ContractsPage() {
+  const { user } = useAuth()
   const [activeFilter, setActiveFilter] = useState("all")
-  const { data: apiContracts } = useData(fetchContracts, mockContracts)
+  const { data: apiContracts, loading, error } = useData(fetchContracts, [])
+  const [movesMap, setMovesMap] = useState<Record<string, MoveRequest>>({})
+
+  useEffect(() => {
+    fetchMoves()
+      .then((moves) => {
+        const map: Record<string, MoveRequest> = {}
+        for (const m of moves) map[m.id] = m
+        setMovesMap(map)
+      })
+      .catch(() => {})
+  }, [])
 
   const filtered = apiContracts.filter((c) => {
     if (activeFilter === "all") return true
@@ -43,7 +57,7 @@ export default function ContractsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role="shipper" userName="John Doe" />
+      <NavHeader role={user?.role} userName={user?.name} />
       <main className="mx-auto max-w-7xl px-4 py-6">
         <h1 className="mb-6 text-2xl font-bold">Contracts</h1>
 
@@ -57,7 +71,13 @@ export default function ContractsPage() {
           </TabsList>
 
           <TabsContent value={activeFilter} className="mt-4">
-            {filtered.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : error ? (
+              <p className="py-12 text-center text-sm text-destructive">Failed to load contracts.</p>
+            ) : filtered.length === 0 ? (
               <EmptyState
                 icon="📋"
                 title="No contracts yet"
@@ -66,7 +86,7 @@ export default function ContractsPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {filtered.map((contract) => {
-                  const move = getMoveById(contract.moveId)
+                  const move = movesMap[contract.moveId]
                   return (
                     <Link key={contract.id} href={`/contracts/${contract.id}`}>
                       <Card className="transition-colors hover:border-primary/30">
@@ -92,8 +112,8 @@ export default function ContractsPage() {
                                 <span>${contract.agreedPrice.toFixed(2)}</span>
                               </div>
                             </div>
-                            <Badge variant={statusConfig[contract.status].variant}>
-                              {statusConfig[contract.status].label}
+                            <Badge variant={statusConfig[contract.status]?.variant ?? "outline"}>
+                              {statusConfig[contract.status]?.label ?? contract.status}
                             </Badge>
                           </div>
                         </CardContent>

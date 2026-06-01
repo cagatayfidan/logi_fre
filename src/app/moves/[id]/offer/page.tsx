@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, DollarSign } from "lucide-react"
+import { ArrowLeft, DollarSign, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,16 +12,29 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
 import { buttonVariants } from "@/components/ui/button"
-import { getMoveById } from "@/lib/data"
+import { useData } from "@/lib/use-data"
+import { createOffer } from "@/lib/api/offers"
+import { fetchMoveById } from "@/lib/api/moves"
+import type { MoveRequest } from "@/lib/api/moves"
+import { toast } from "sonner"
 
 export default function MakeOfferPage() {
   const params = useParams()
-  const move = getMoveById(params.id as string)
+  const router = useRouter()
+  const { data: move, loading } = useData(() => fetchMoveById(params.id as string), undefined as unknown as MoveRequest)
   const [price, setPrice] = useState("")
   const [message, setMessage] = useState("")
   const [insurance, setInsurance] = useState(true)
   const [loadingHelp, setLoadingHelp] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   if (!move) {
     return (
@@ -31,7 +44,7 @@ export default function MakeOfferPage() {
     )
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const newErrors: Record<string, string> = {}
     if (!price || Number(price) <= 0) newErrors.price = "Enter a valid price"
@@ -39,7 +52,13 @@ export default function MakeOfferPage() {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      window.location.href = "/my-offers"
+      try {
+        await createOffer(params.id as string, { price: Number(price), message })
+        toast.success("Offer submitted!")
+        router.push("/my-offers")
+      } catch {
+        toast.error("Failed to submit offer")
+      }
     }
   }
 

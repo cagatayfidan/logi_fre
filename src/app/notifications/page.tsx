@@ -8,10 +8,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { currentUser, getNotificationsForUser, getOfferById, notificationTypeIcons, type Notification } from "@/lib/data"
-import { fetchNotifications, markNotificationRead } from "@/lib/api/notifications"
+import { fetchNotifications, markNotificationRead, markAllNotificationsRead, type Notification } from "@/lib/api/notifications"
+import { fetchOfferById } from "@/lib/api/offers"
 import { useData } from "@/lib/use-data"
+import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
+
+const notificationTypeIcons: Record<string, string> = {
+  offer_received: "💰",
+  offer_accepted: "✅",
+  offer_rejected: "❌",
+  counter_offer: "🤝",
+  contract_status: "📋",
+  move_reminder: "📅",
+  payment: "💳",
+  review: "⭐",
+  system: "🔔",
+}
 
 function timeAgo(dateStr: string): string {
   const now = Date.now()
@@ -28,11 +41,9 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function NotificationsPage() {
-  const user = currentUser
-  const { data: apiNotifications } = useData(fetchNotifications, getNotificationsForUser(user.id))
-  const [notifications, setNotifications] = useState<Notification[]>(
-    () => getNotificationsForUser(user.id),
-  )
+  const { user } = useAuth()
+  const { data: apiNotifications, loading, error } = useData(fetchNotifications, [])
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
   useEffect(() => {
     if (apiNotifications.length > 0) setNotifications(apiNotifications)
@@ -49,28 +60,25 @@ export default function NotificationsPage() {
   }
 
   function markAllAsRead() {
+    markAllNotificationsRead().catch(() => {})
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
   }
 
   function getRelatedLink(n: Notification): string | null {
     if (n.relatedModel === "MoveRequest" && n.relatedId) return `/moves/${n.relatedId}`
-    if (n.relatedModel === "Offer" && n.relatedId) {
-      const offer = getOfferById(n.relatedId)
-      if (offer?.moveId) return `/moves/${offer.moveId}`
-      return `/moves`
-    }
+    if (n.relatedModel === "Offer" && n.relatedId) return `/moves`
     if (n.relatedModel === "Contract" && n.relatedId) return `/contracts/${n.relatedId}`
     return null
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role={user.role} userName={user.name} />
+      <NavHeader role={user?.role} userName={user?.name} />
       <main className="mx-auto max-w-2xl px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
-              href={user.role === "shipper" ? "/dashboard" : "/moves"}
+              href={user?.role === "shipper" ? "/dashboard" : "/moves"}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="size-4" /> Back
@@ -91,7 +99,13 @@ export default function NotificationsPage() {
           )}
         </div>
 
-        {notifications.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : error ? (
+          <p className="py-12 text-center text-sm text-destructive">Failed to load notifications.</p>
+        ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <Bell className="mb-4 size-12 text-muted-foreground" />
             <h2 className="mb-1 text-lg font-semibold">No notifications yet</h2>
