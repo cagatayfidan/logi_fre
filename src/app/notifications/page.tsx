@@ -31,6 +31,7 @@ export default function NotificationsPage() {
     () => getNotificationsForUser(user.id),
   )
   const unreadCount = notifications.filter((n) => !n.isRead).length
+  const urgentCount = notifications.filter((n) => n.isUrgent).length
 
   function markAsRead(id: string) {
     setNotifications((prev) =>
@@ -66,6 +67,9 @@ export default function NotificationsPage() {
               <ArrowLeft className="size-4" /> Back
             </Link>
             <h1 className="text-2xl font-bold">Notifications</h1>
+            {urgentCount > 0 && (
+              <Badge variant="destructive" className="mr-1">{urgentCount} urgent</Badge>
+            )}
             {unreadCount > 0 && (
               <Badge variant="default">{unreadCount} new</Badge>
             )}
@@ -100,20 +104,26 @@ export default function NotificationsPage() {
                     className={cn(
                       "transition-colors hover:border-primary/30",
                       !n.isRead && "border-l-4 border-l-primary",
+                      n.isUrgent && "border-l-red-500",
                     )}
                   >
                     <CardContent className="flex items-start gap-3 p-4">
                       <span className="mt-0.5 text-lg">{icon}</span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                          <p
-                            className={cn(
-                              "text-sm",
-                              !n.isRead && "font-medium",
+                          <div className="flex items-center gap-2">
+                            <p
+                              className={cn(
+                                "text-sm",
+                                !n.isRead && "font-medium",
+                              )}
+                            >
+                              {n.title}
+                            </p>
+                            {n.isUrgent && (
+                              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">URGENT</Badge>
                             )}
-                          >
-                            {n.title}
-                          </p>
+                          </div>
                           <span className="shrink-0 text-xs text-muted-foreground">
                             {timeAgo(n.createdAt)}
                           </span>

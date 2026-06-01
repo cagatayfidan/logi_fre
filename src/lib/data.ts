@@ -50,6 +50,7 @@ export interface Notification {
   title: string
   message: string
   isRead: boolean
+  isUrgent?: boolean
   relatedId?: string
   relatedModel?: string
   createdAt: string

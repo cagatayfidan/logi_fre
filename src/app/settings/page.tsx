@@ -63,6 +63,7 @@ interface NotificationPrefs {
   pushNotifications: boolean
   offerAlerts: boolean
   contractUpdates: boolean
+  reviewAlerts: boolean
 }
 
 export default function SettingsPage() {
@@ -96,6 +97,7 @@ export default function SettingsPage() {
     pushNotifications: true,
     offerAlerts: true,
     contractUpdates: true,
+    reviewAlerts: true,
   })
 
   const [distanceUnit, setDistanceUnit] = useState("km")
@@ -152,9 +154,14 @@ export default function SettingsPage() {
   function toggleNotification(key: keyof NotificationPrefs) {
     setNotifications((prev) => {
       const next = { ...prev, [key]: !prev[key] }
-      toast.success(
-        `${key === "emailNotifications" ? "Email" : key === "pushNotifications" ? "Push" : key === "offerAlerts" ? "Offer alerts" : "Contract updates"} ${next[key] ? "enabled" : "disabled"}`
-      )
+      const labels: Record<string, string> = {
+        emailNotifications: "Email",
+        pushNotifications: "Push",
+        offerAlerts: "Offer alerts",
+        contractUpdates: "Contract updates",
+        reviewAlerts: "Review alerts",
+      }
+      toast.success(`${labels[key] || key} ${next[key] ? "enabled" : "disabled"}`)
       return next
     })
   }
@@ -394,6 +401,13 @@ export default function SettingsPage() {
                 description="Status changes on your active contracts"
                 checked={notifications.contractUpdates}
                 onToggle={() => toggleNotification("contractUpdates")}
+              />
+              <Separator />
+              <NotificationRow
+                label="Review Alerts"
+                description="Get notified when someone reviews you"
+                checked={notifications.reviewAlerts}
+                onToggle={() => toggleNotification("reviewAlerts")}
               />
             </div>
             <p className="mt-4 text-xs text-muted-foreground">

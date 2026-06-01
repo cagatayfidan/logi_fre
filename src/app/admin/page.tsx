@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Users, Truck, FileText, Search, ShieldAlert } from "lucide-react"
+import { ArrowLeft, Users, Truck, FileText, Search, ShieldAlert, ClipboardList, Scale, MessageSquare, Settings, Headset, DollarSign } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NavHeader } from "@/components/nav-header"
 import { currentUser } from "@/lib/data"
@@ -41,6 +41,37 @@ export default function AdminPage() {
         <div className="mb-6 flex items-center gap-2">
           <ShieldAlert className="size-6 text-primary" />
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        </div>
+
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link href="/admin/moves" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <ClipboardList className="mr-1.5 size-4" data-icon="inline-start" />
+            Move Requests
+          </Link>
+          <Link href="/admin/disputes" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Scale className="mr-1.5 size-4" data-icon="inline-start" />
+            Disputes
+          </Link>
+          <Link href="/admin/reviews" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <MessageSquare className="mr-1.5 size-4" data-icon="inline-start" />
+            Reviews
+          </Link>
+          <Link href="/admin/contracts" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <FileText className="mr-1.5 size-4" data-icon="inline-start" />
+            Contracts
+          </Link>
+          <Link href="/admin/settings" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Settings className="mr-1.5 size-4" data-icon="inline-start" />
+            Settings
+          </Link>
+          <Link href="/admin/tickets" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Headset className="mr-1.5 size-4" data-icon="inline-start" />
+            Tickets
+          </Link>
+          <Link href="/admin/payments" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <DollarSign className="mr-1.5 size-4" data-icon="inline-start" />
+            Payments
+          </Link>
         </div>
 
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
