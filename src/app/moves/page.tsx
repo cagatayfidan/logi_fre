@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Search, MapPin, Calendar, Package2, DollarSign } from "lucide-react"
+import { Search, MapPin, Calendar, Package2, DollarSign, Star, User } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { mockMoves } from "@/lib/data"
+import { mockMoves, getReviewRatingProfile } from "@/lib/data"
+import { StarRating } from "@/components/star-rating"
 
 export default function AvailableMovesPage() {
   const [search, setSearch] = useState("")
@@ -87,6 +88,12 @@ export default function AvailableMovesPage() {
                         <span>
                           {move.items.length} items ~{move.totalWeight}kg
                         </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <User className="size-4" />
+                        <span>{move.shipperName}</span>
+                        <StarRating value={Math.round(move.shipperRating)} readonly />
+                        <span className="text-xs">({move.shipperReviewCount})</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <DollarSign className="size-4" />

@@ -731,3 +731,91 @@ export function getNotificationsForUser(userId: string): Notification[] {
 export function getUnreadNotificationCount(userId: string): number {
   return mockNotifications.filter((n) => n.userId === userId && !n.isRead).length
 }
+
+export interface Review {
+  id: string
+  fromId: string
+  fromName: string
+  fromAvatar?: string
+  toId: string
+  toName: string
+  rating: number
+  comment?: string
+  reply?: string
+  repliedAt?: string
+  createdAt: string
+}
+
+export const mockReviews: Review[] = [
+  {
+    id: "rev-1",
+    fromId: "user-1",
+    fromName: "John Doe",
+    toId: "user-2",
+    toName: "Mike's Transport",
+    rating: 4,
+    comment: "Great service, on time and careful with items.",
+    createdAt: "June 10, 2026",
+  },
+  {
+    id: "rev-2",
+    fromId: "user-3",
+    fromName: "Alice Smith",
+    toId: "user-2",
+    toName: "Mike's Transport",
+    rating: 5,
+    comment: "Mike was fantastic! Very professional and helpful.",
+    reply: "Thank you Alice! Glad to help with your move.",
+    repliedAt: "June 12, 2026",
+    createdAt: "June 11, 2026",
+  },
+  {
+    id: "rev-3",
+    fromId: "user-4",
+    fromName: "Bob Johnson",
+    toId: "user-2",
+    toName: "Mike's Transport",
+    rating: 3,
+    comment: "Okay service, but arrived a bit late.",
+    createdAt: "June 5, 2026",
+  },
+  {
+    id: "rev-4",
+    fromId: "user-1",
+    fromName: "John Doe",
+    toId: "user-5",
+    toName: "FastMove Inc.",
+    rating: 5,
+    comment: "Amazing team! Fast and careful.",
+    createdAt: "May 25, 2026",
+  },
+]
+
+export function getReviewsByUser(userId: string): Review[] {
+  return mockReviews.filter((r) => r.toId === userId)
+}
+
+export function getReviewRatingProfile(userId: string) {
+  const reviews = getReviewsByUser(userId)
+  const count = reviews.length
+  if (count === 0) {
+    return { average: 0, count: 0, isPublic: false, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } }
+  }
+  const sum = reviews.reduce((acc, r) => acc + r.rating, 0)
+  const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  for (const r of reviews) {
+    distribution[r.rating as keyof typeof distribution]++
+  }
+  return {
+    average: Math.round((sum / count) * 10) / 10,
+    count,
+    isPublic: count >= 3,
+    distribution,
+  }
+}
+
+export function getCompletedMovesCount(userId: string): number {
+  return mockContracts.filter(
+    (c) => (c.transporterId === userId || c.shipperId === userId) && c.status === "completed"
+  ).length
+}
