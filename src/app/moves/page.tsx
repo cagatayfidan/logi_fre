@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Search, MapPin, Calendar, Package2, DollarSign } from "lucide-react"
+import { Search, MapPin, Calendar, Package2, DollarSign, Star, User, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,12 +16,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { mockMoves } from "@/lib/data"
+import { fetchMoves } from "@/lib/api/moves"
+import { useData } from "@/lib/use-data"
+import { StarRating } from "@/components/star-rating"
 
 export default function AvailableMovesPage() {
   const [search, setSearch] = useState("")
   const [filterSize, setFilterSize] = useState("all")
+  const { data: apiMoves } = useData(fetchMoves, mockMoves)
 
-  const filtered = mockMoves.filter((move) => {
+  const filtered = apiMoves.filter((move) => {
     if (move.status !== "active") return false
     if (search && !move.title.toLowerCase().includes(search.toLowerCase()) &&
         !move.origin.toLowerCase().includes(search.toLowerCase()) &&
@@ -87,6 +91,12 @@ export default function AvailableMovesPage() {
                         <span>
                           {move.items.length} items ~{move.totalWeight}kg
                         </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <User className="size-4" />
+                        <span>{move.shipperName}</span>
+                        <StarRating value={Math.round(move.shipperRating)} readonly />
+                        <span className="text-xs">({move.shipperReviewCount})</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <DollarSign className="size-4" />

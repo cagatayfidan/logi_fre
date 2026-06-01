@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Package, CheckCircle, XCircle, Clock } from "lucide-react"
+import { Package, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
 import { mockOffers, getMoveById, isOfferExpired } from "@/lib/data"
+import { fetchMyOffers } from "@/lib/api/offers"
+import { useData } from "@/lib/use-data"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   pending: { label: "Pending", variant: "outline" },
@@ -20,8 +22,9 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 
 export default function MyOffersPage() {
   const [activeTab, setActiveTab] = useState("pending")
+  const { data: apiOffers } = useData(fetchMyOffers, mockOffers)
 
-  const transporterOffers = mockOffers.filter((o) => o.transporterId === "user-2")
+  const transporterOffers = apiOffers
   const filtered = transporterOffers.filter((o) => o.status === activeTab)
 
   return (
