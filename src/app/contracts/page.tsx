@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { FileText, MapPin, Calendar } from "lucide-react"
+import { FileText, MapPin, Calendar, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
 import { mockContracts, getMoveById, ContractStatus } from "@/lib/data"
+import { fetchContracts } from "@/lib/api/contracts"
+import { useData } from "@/lib/use-data"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   pending_checkin: { label: "Pending Check-in", variant: "outline" },
@@ -31,8 +33,9 @@ const activeStatuses: ContractStatus[] = ["pending_checkin", "checked_in", "in_t
 
 export default function ContractsPage() {
   const [activeFilter, setActiveFilter] = useState("all")
+  const { data: apiContracts } = useData(fetchContracts, mockContracts)
 
-  const filtered = mockContracts.filter((c) => {
+  const filtered = apiContracts.filter((c) => {
     if (activeFilter === "all") return true
     if (activeFilter === "active") return activeStatuses.includes(c.status)
     return c.status === activeFilter

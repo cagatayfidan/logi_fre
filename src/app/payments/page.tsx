@@ -1,17 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft, CreditCard, Download } from "lucide-react"
+import { ArrowLeft, CreditCard, Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { NavHeader } from "@/components/nav-header"
 import { currentUser } from "@/lib/data"
+import { fetchPaymentHistory } from "@/lib/api/payments"
+import { useData } from "@/lib/use-data"
 
-const mockPayments = [
-  { id: "PAY-001", contractId: "C-003", amount: 450, status: "held", date: "June 3, 2026", transporter: "Mike's Transport" },
-  { id: "PAY-002", contractId: "C-002", amount: 320, status: "released", date: "May 21, 2026", transporter: "FastMove Inc." },
-  { id: "PAY-003", contractId: "C-001", amount: 800, status: "released", date: "June 2, 2026", transporter: "Mike's Transport" },
+import type { Payment } from "@/lib/api/payments"
+
+const mockPaymentsFallback: Payment[] = [
+  { id: "PAY-001", contractId: "C-003", shipperId: "user-1", transporterId: "user-2", amount: 450, currency: "usd", status: "held", createdAt: "2026-06-03T00:00:00Z" },
+  { id: "PAY-002", contractId: "C-002", shipperId: "user-1", transporterId: "user-5", amount: 320, currency: "usd", status: "released", createdAt: "2026-05-21T00:00:00Z" },
+  { id: "PAY-003", contractId: "C-001", shipperId: "user-1", transporterId: "user-2", amount: 800, currency: "usd", status: "released", createdAt: "2026-06-02T00:00:00Z" },
 ]
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
@@ -24,6 +28,7 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 export default function PaymentsPage() {
   const user = currentUser
   const isShipper = user.role === "shipper"
+  const { data: payments } = useData(fetchPaymentHistory, mockPaymentsFallback)
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,10 +47,10 @@ export default function PaymentsPage() {
         </h1>
 
         <div className="flex flex-col gap-3">
-          {mockPayments.length === 0 ? (
+          {payments.length === 0 ? (
             <p className="py-12 text-center text-muted-foreground">No payments yet.</p>
           ) : (
-            mockPayments.map((pm) => (
+            payments.map((pm) => (
               <Card key={pm.id}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
@@ -55,8 +60,12 @@ export default function PaymentsPage() {
                       </div>
                       <div>
                         <p className="font-medium">{pm.id}</p>
-                        <p className="text-xs text-muted-foreground">{pm.transporter}</p>
-                        <p className="text-xs text-muted-foreground">{pm.date}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {isShipper ? pm.transporterId : pm.shipperId}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(pm.createdAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Plus, MapPin, Calendar } from "lucide-react"
+import { Plus, MapPin, Calendar, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { EmptyState } from "@/components/empty-state"
 import { mockMoves } from "@/lib/data"
+import { fetchMoves } from "@/lib/api/moves"
+import { useData } from "@/lib/use-data"
 import { useT } from "@/lib/i18n-provider"
 
 const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
@@ -21,7 +23,8 @@ const statusVariant: Record<string, "default" | "secondary" | "outline"> = {
 export default function DashboardPage() {
   const { t } = useT()
   const [activeTab, setActiveTab] = useState("active")
-  const moves = mockMoves.filter((m) => m.status === activeTab)
+  const { data: apiMoves, loading } = useData(fetchMoves, mockMoves)
+  const moves = apiMoves.filter((m) => m.status === activeTab)
 
   return (
     <div className="min-h-screen bg-background">
