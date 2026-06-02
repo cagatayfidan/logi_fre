@@ -44,7 +44,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-background">
       <NavHeader role="admin" userName={user?.name || "Admin"} />
       <main className="mx-auto max-w-4xl px-4 py-6">
-        <div className="mb-6 flex items-center gap-2">
+        <div className="mb-4 flex items-center gap-2">
           <ShieldAlert className="size-6 text-primary" />
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         </div>
@@ -83,16 +83,24 @@ export default function AdminPage() {
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
-              <Users className="size-8 text-primary" />
-              <div>
-                <p className="text-2xl font-bold">{stats.totalUsers}</p>
+              <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
+                <Users className="size-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-2xl font-bold">{mockStats.users.total}</p>
                 <p className="text-xs text-muted-foreground">Total Users</p>
               </div>
+              <Badge variant="destructive" className="flex items-center gap-1 text-xs">
+                <AlertTriangle className="size-3" />
+                {mockStats.users.suspended} suspended
+              </Badge>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
-              <Users className="size-8 text-emerald-600" />
+              <div className="flex size-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                <Package className="size-5 text-blue-600" />
+              </div>
               <div>
                 <p className="text-2xl font-bold">${(stats.totalVolume || 0).toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground">Total Volume</p>
@@ -101,32 +109,93 @@ export default function AdminPage() {
           </Card>
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
-              <Truck className="size-8 text-primary" />
-              <div>
-                <p className="text-2xl font-bold">{stats.totalMoves}</p>
-                <p className="text-xs text-muted-foreground">Total Moves</p>
+              <div className="flex size-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/20">
+                <Truck className="size-5 text-emerald-600" />
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-3 p-4">
-              <FileText className="size-8 text-primary" />
               <div>
-                <p className="text-2xl font-bold">{stats.totalContracts}</p>
-                <p className="text-xs text-muted-foreground">Contracts</p>
+                <p className="text-2xl font-bold">{mockStats.users.transporters}</p>
+                <p className="text-xs text-muted-foreground">Transporters</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
+        {/* Platform Row */}
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Platform</p>
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/20">
+                <Truck className="size-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{mockStats.moveRequests.active}</p>
+                <p className="text-xs text-muted-foreground">Active Moves</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/20">
+                <FileText className="size-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{mockStats.contracts.total}</p>
+                <p className="text-xs text-muted-foreground">Total Contracts</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/20">
+                <Star className="size-5 text-yellow-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{mockStats.reviews.averageRating}</p>
+                <p className="text-xs text-muted-foreground">Avg Rating</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Revenue Row */}
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Revenue</p>
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                <DollarSign className="size-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  ${mockStats.payments.totalVolume.toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground">Total Volume</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="flex size-10 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/20">
+                <DollarSign className="size-5 text-teal-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">
+                  ${mockStats.payments.platformFees.toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground">Platform Fees</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* User Management */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="mb-4 flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
-              User Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+              <h2 className="text-base font-semibold">User Management</h2>
+            </div>
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
