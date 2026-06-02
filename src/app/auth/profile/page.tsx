@@ -1,14 +1,18 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Link from "next/link"
-import { Truck } from "lucide-react"
+import { Truck, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
+import { updateProfile } from "@/lib/api/auth"
+import { useAuth } from "@/lib/auth-context"
+import { toast } from "sonner"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,19 +26,41 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>
 
 export default function ProfilePage() {
+  const [loading, setLoading] = useState(false)
+  const { user, refresh } = useAuth()
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: "John Doe",
-    },
   })
 
-  function onSubmit(_data: ProfileForm) {
-    window.location.href = "/dashboard"
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name || "",
+        phone: user.phone || "",
+        address: (user as any).address || "",
+        city: (user as any).city || "",
+        state: (user as any).state || "",
+        zip: (user as any).zip || "",
+      })
+    }
+  }, [user, reset])
+
+  async function onSubmit(data: ProfileForm) {
+    setLoading(true)
+    try {
+      await updateProfile(data as any)
+      await refresh()
+      window.location.href = "/dashboard"
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to update profile")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -79,7 +105,8 @@ export default function ProfilePage() {
                   <Input id="zip" placeholder="10001" {...register("zip")} />
                 </Field>
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
                 Save &amp; Continue
               </Button>
               <p className="text-center text-xs text-muted-foreground">

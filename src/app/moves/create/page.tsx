@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X, ImageIcon, Info } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X, ImageIcon, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,8 @@ import { Badge } from "@/components/ui/badge"
 import { Stepper } from "@/components/stepper"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
+import { createMove, publishMove } from "@/lib/api/moves"
+import { toast } from "sonner"
 
 const steps = [
   { label: "Addresses" },
@@ -49,6 +52,7 @@ const presetItems = [
 ]
 
 export default function CreateMovePage() {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
@@ -64,9 +68,32 @@ export default function CreateMovePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [roomVolume, setRoomVolume] = useState(0)
+  const [publishing, setPublishing] = useState(false)
 
   function addItem(name: string) {
     setItems([...items, { id: `item-${Date.now()}`, name, quantity: 1, weight: 10, fragile: false }])
+  }
+
+  async function handlePublish(asDraft: boolean) {
+    setPublishing(true)
+    try {
+      const move = await createMove({
+        origin,
+        destination,
+        pickupDate,
+        deliveryDate,
+        items: items.map((i) => ({ name: i.name, quantity: i.quantity, weight: i.weight, isFragile: i.fragile })),
+        estimatedVolume: displayVolume,
+      })
+      if (!asDraft) {
+        await publishMove(move.id)
+      }
+      router.push("/dashboard")
+    } catch {
+      toast.error("Failed to publish move request")
+    } finally {
+      setPublishing(false)
+    }
   }
 
   function updateItem(id: string, field: keyof FormItem, value: string | number | boolean) {
@@ -125,10 +152,6 @@ export default function CreateMovePage() {
   function handleBack() {
     setCurrentStep(Math.max(currentStep - 1, 0))
     setErrors({})
-  }
-
-  function handlePublish() {
-    window.location.href = "/dashboard"
   }
 
   const totalWeight = items.reduce((sum, item) => sum + item.weight * item.quantity, 0)
@@ -490,10 +513,14 @@ export default function CreateMovePage() {
             <Button onClick={handleNext}>Next</Button>
           ) : (
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handlePublish}>
+              <Button variant="outline" onClick={() => handlePublish(true)} disabled={publishing}>
+                {publishing && <Loader2 className="mr-2 size-4 animate-spin" />}
                 Save as Draft
               </Button>
-              <Button onClick={handlePublish}>Publish Move Request</Button>
+              <Button onClick={() => handlePublish(false)} disabled={publishing}>
+                {publishing && <Loader2 className="mr-2 size-4 animate-spin" />}
+                Publish Move Request
+              </Button>
             </div>
           )}
         </CardFooter>

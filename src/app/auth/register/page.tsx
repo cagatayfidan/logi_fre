@@ -1,14 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Truck } from "lucide-react"
+import { Truck, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
+import { register } from "@/lib/api/auth"
+import { toast } from "sonner"
 
 const registerSchema = z
   .object({
@@ -25,16 +28,25 @@ const registerSchema = z
 type RegisterForm = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
+  const [loading, setLoading] = useState(false)
   const {
-    register,
+    register: formRegister,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
   })
 
-  function onSubmit(_data: RegisterForm) {
-    window.location.href = "/auth/role"
+  async function onSubmit(data: RegisterForm) {
+    setLoading(true)
+    try {
+      await register({ name: data.name, email: data.email, password: data.password, role: "shipper" })
+      window.location.href = "/auth/role"
+    } catch (e: any) {
+      toast.error(e?.message || "Registration failed")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -53,17 +65,17 @@ export default function RegisterPage() {
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                <Input id="name" placeholder="John Doe" {...register("name")} />
+                <Input id="name" placeholder="John Doe" {...formRegister("name")} />
                 <FieldError errors={[errors.name]} />
               </Field>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" placeholder="john@example.com" {...register("email")} />
+                <Input id="email" type="email" placeholder="john@example.com" {...formRegister("email")} />
                 <FieldError errors={[errors.email]} />
               </Field>
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
+                <Input id="password" type="password" placeholder="••••••••" {...formRegister("password")} />
                 <FieldError errors={[errors.password]} />
               </Field>
               <Field>
@@ -72,11 +84,12 @@ export default function RegisterPage() {
                   id="confirmPassword"
                   type="password"
                   placeholder="••••••••"
-                  {...register("confirmPassword")}
+                  {...formRegister("confirmPassword")}
                 />
                 <FieldError errors={[errors.confirmPassword]} />
               </Field>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
                 Create Account
               </Button>
             </FieldGroup>
