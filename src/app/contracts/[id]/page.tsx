@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, MapPin, Calendar, Package2, Circle, CheckCircle, XCircle, ShieldCheck, Star } from "lucide-react"
+import { ArrowLeft, MapPin, Calendar, Package2, Circle, CheckCircle, XCircle, ShieldCheck, Star, Loader2 } from "lucide-react"
 import { StarRating } from "@/components/star-rating"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -26,20 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  getContractById,
-  getMoveById,
-  getOfferById,
-  contractTimelineSteps,
-  getContractTimelineStepIndex,
-  currentUser,
-  getContractActionRole,
-  getContractActionLabel,
-  cancelContractReasons,
-  ContractStatus,
-} from "@/lib/data"
+import { fetchContractById, checkIn, markInTransit, confirmDelivery, confirmReceipt, cancelContract, type Contract } from "@/lib/api/contracts"
+import { fetchMoveById, type MoveRequest } from "@/lib/api/moves"
+import { fetchOfferById, type Offer } from "@/lib/api/offers"
+import { createReview } from "@/lib/api/reviews"
+import { useAuth } from "@/lib/auth-context"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
+  active: { label: "Pending Check-in", variant: "outline" },
   pending_checkin: { label: "Pending Check-in", variant: "outline" },
   checked_in: { label: "Checked In", variant: "default" },
   in_transit: { label: "In Transit", variant: "default" },
@@ -48,54 +42,174 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
   cancelled: { label: "Cancelled", variant: "destructive" },
 }
 
-const nextStatusMap: Record<string, ContractStatus> = {
-  pending_checkin: "checked_in",
-  checked_in: "in_transit",
-  in_transit: "delivered",
-  delivered: "completed",
+const contractTimelineSteps = [
+  { key: "pending_checkin", label: "Pending Check-in" },
+  { key: "checked_in", label: "Checked In" },
+  { key: "in_transit", label: "In Transit" },
+  { key: "delivered", label: "Delivered" },
+  { key: "completed", label: "Completed" },
+] as const
+
+function getContractTimelineStepIndex(status: string): number {
+  const order = ["pending_checkin", "checked_in", "in_transit", "delivered", "completed"]
+  if (status === "cancelled") return -1
+  const idx = order.indexOf(status)
+  return idx >= 0 ? idx : order.indexOf("active")
 }
+
+function getContractActionRole(status: string): "transporter" | "shipper" | null {
+  if (status === "checked_in" || status === "in_transit" || status === "pending_checkin" || status === "active") return "transporter"
+  if (status === "delivered") return "shipper"
+  return null
+}
+
+function getContractActionLabel(status: string): string {
+  const map: Record<string, string> = {
+    active: "Check In",
+    pending_checkin: "Check In",
+    checked_in: "Mark In Transit",
+    in_transit: "Confirm Delivery",
+    delivered: "Confirm Receipt",
+  }
+  return map[status] || ""
+}
+
+const cancelContractReasons = [
+  "Change of plans — no longer need the move",
+  "Found a better offer",
+  "Transporter is not responding",
+  "Schedule conflict",
+  "Other reason",
+]
 
 export default function ContractDetailPage() {
   const params = useParams()
-  const router = useRouter()
-  const contract = getContractById(params.id as string)
-  const [status, setStatus] = useState(contract?.status ?? "cancelled")
+  const { user, refresh } = useAuth()
+  const [contract, setContract] = useState<Contract | null>(null)
+  const [move, setMove] = useState<MoveRequest | null>(null)
+  const [offer, setOffer] = useState<Offer | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelReason, setCancelReason] = useState("")
   const [rating, setRating] = useState(0)
   const [reviewComment, setReviewComment] = useState("")
   const [reviewSubmitted, setReviewSubmitted] = useState(false)
+  const [submittingReview, setSubmittingReview] = useState(false)
 
-  if (!contract) {
+  const loadContract = useCallback(async () => {
+    try {
+      setLoading(true)
+      setFetchError(null)
+      const c = await fetchContractById(params.id as string)
+      setContract(c)
+      try {
+        const [mv, of] = await Promise.all([
+          fetchMoveById(c.moveId),
+          fetchOfferById(c.offerId),
+        ])
+        setMove(mv)
+        setOffer(of)
+      } catch {
+        // non-critical
+      }
+    } catch {
+      setFetchError("Failed to load contract.")
+    } finally {
+      setLoading(false)
+    }
+  }, [params.id])
+
+  useEffect(() => {
+    loadContract()
+  }, [loadContract])
+
+  async function handleAction() {
+    if (!contract) return
+    setActionLoading(true)
+    try {
+      let updated: Contract
+      switch (contract.status) {
+        case "active":
+          updated = await checkIn(contract.id)
+          break
+        case "checked_in":
+          updated = await markInTransit(contract.id)
+          break
+        case "in_transit":
+          updated = await confirmDelivery(contract.id)
+          break
+        case "delivered":
+          updated = await confirmReceipt(contract.id)
+          break
+        default:
+          return
+      }
+      setContract(updated)
+      await refresh()
+    } catch {
+      // error handled by leaving state unchanged
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function handleCancelContract() {
+    if (!contract || !cancelReason) return
+    setActionLoading(true)
+    try {
+      const updated = await cancelContract(contract.id, cancelReason)
+      setContract(updated)
+      setCancelOpen(false)
+      setCancelReason("")
+      await refresh()
+    } catch {
+      // error
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function handleSubmitReview() {
+    if (!contract || rating === 0) return
+    setSubmittingReview(true)
+    try {
+      await createReview({ contractId: contract.id, rating, comment: reviewComment || undefined })
+      setReviewSubmitted(true)
+    } catch {
+      // error
+    } finally {
+      setSubmittingReview(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-2xl items-center justify-center px-4 py-6">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (fetchError || !contract) {
     return (
       <div className="mx-auto min-h-screen max-w-2xl px-4 py-6">
         <Link href="/dashboard" className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="size-4" />
           Back
         </Link>
-        <p className="py-12 text-center text-muted-foreground">Contract not found</p>
+        <p className="py-12 text-center text-muted-foreground">{fetchError ?? "Contract not found"}</p>
       </div>
     )
   }
 
-  const move = getMoveById(contract.moveId)
-  const offer = getOfferById(contract.offerId)
+  const status = contract.status
   const stepIndex = getContractTimelineStepIndex(status)
   const actionRole = getContractActionRole(status)
   const actionLabel = getContractActionLabel(status)
   const isCancelled = status === "cancelled"
   const isCompleted = status === "completed"
-
-  function handleAction() {
-    const nextStatus = nextStatusMap[status]
-    if (nextStatus) setStatus(nextStatus)
-  }
-
-  function handleCancelContract() {
-    setStatus("cancelled")
-    setCancelOpen(false)
-    setCancelReason("")
-  }
 
   return (
     <div className="mx-auto min-h-screen max-w-2xl px-4 py-6">
@@ -112,8 +226,8 @@ export default function ContractDetailPage() {
           <h1 className="text-2xl font-bold">Contract #{contract.id}</h1>
           <p className="text-sm text-muted-foreground">{move?.title ?? contract.moveId}</p>
         </div>
-        <Badge variant={statusConfig[status].variant}>
-          {statusConfig[status].label}
+        <Badge variant={statusConfig[status]?.variant ?? "outline"}>
+          {statusConfig[status]?.label ?? status}
         </Badge>
       </div>
 
@@ -227,7 +341,7 @@ export default function ContractDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Star className="size-4 text-muted-foreground" />
-                {currentUser.id === contract.shipperId ? "Rate Transporter" : "Rate Shipper"}
+                {user?.id === contract.shipperId ? "Rate Transporter" : "Rate Shipper"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -245,18 +359,16 @@ export default function ContractDetailPage() {
               <div className="mt-3 flex gap-2">
                 <Button
                   size="sm"
-                  disabled={rating === 0}
-                  onClick={() => {
-                    setReviewSubmitted(true)
-                    setRating(rating)
-                  }}
+                  disabled={rating === 0 || submittingReview}
+                  onClick={handleSubmitReview}
                 >
-                  Submit Rating
+                  {submittingReview ? "Submitting..." : "Submit Rating"}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setReviewSubmitted(true)}
+                  disabled={submittingReview}
                 >
                   Skip
                 </Button>
@@ -283,19 +395,27 @@ export default function ContractDetailPage() {
         {!isCancelled && !isCompleted && (
           <div className="flex flex-col gap-3">
             {actionRole === "transporter" && (
-              <Button onClick={handleAction} className="w-full">
-                <CheckCircle className="mr-2 size-4" data-icon="inline-start" />
+              <Button onClick={handleAction} className="w-full" disabled={actionLoading}>
+                {actionLoading ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" data-icon="inline-start" />
+                ) : (
+                  <CheckCircle className="mr-2 size-4" data-icon="inline-start" />
+                )}
                 {actionLabel}
               </Button>
             )}
             {actionRole === "shipper" && (
-              <Button onClick={handleAction} className="w-full">
-                <CheckCircle className="mr-2 size-4" data-icon="inline-start" />
+              <Button onClick={handleAction} className="w-full" disabled={actionLoading}>
+                {actionLoading ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" data-icon="inline-start" />
+                ) : (
+                  <CheckCircle className="mr-2 size-4" data-icon="inline-start" />
+                )}
                 {actionLabel}
               </Button>
             )}
             <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
-              <DialogTrigger render={<Button variant="destructive" className="w-full" />}>
+              <DialogTrigger render={<Button variant="destructive" className="w-full" disabled={actionLoading} />}>
                 <XCircle className="mr-2 size-4" data-icon="inline-start" />
                 Cancel Contract
               </DialogTrigger>
@@ -323,15 +443,15 @@ export default function ContractDetailPage() {
                   </Select>
                 </div>
                 <DialogFooter className="gap-2">
-                  <Button variant="outline" onClick={() => setCancelOpen(false)}>
+                  <Button variant="outline" onClick={() => setCancelOpen(false)} disabled={actionLoading}>
                     Keep Contract
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={handleCancelContract}
-                    disabled={!cancelReason}
+                    disabled={!cancelReason || actionLoading}
                   >
-                    Yes, Cancel Contract
+                    {actionLoading ? "Cancelling..." : "Yes, Cancel Contract"}
                   </Button>
                 </DialogFooter>
               </DialogContent>

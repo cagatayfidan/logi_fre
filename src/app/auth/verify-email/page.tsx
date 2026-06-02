@@ -6,13 +6,25 @@ import { Truck, ArrowLeft, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { sendVerification, verifyEmail } from "@/lib/api/auth"
+import { useAuth } from "@/lib/auth-context"
+import { toast } from "sonner"
 
 export default function VerifyEmailPage() {
+  const { user } = useAuth()
+  const email = user?.email || "john@example.com"
   const [code, setCode] = useState(["", "", "", "", "", ""])
   const [countdown, setCountdown] = useState(60)
   const [canResend, setCanResend] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [verified, setVerified] = useState(false)
+  const [sending, setSending] = useState(false)
+
+  useEffect(() => {
+    if (email && !verified) {
+      sendVerification(email).catch(() => {})
+    }
+  }, [email, verified])
 
   useEffect(() => {
     if (countdown > 0 && !canResend) {
@@ -40,17 +52,30 @@ export default function VerifyEmailPage() {
     }
   }
 
-  function handleResend() {
-    setCountdown(60)
-    setCanResend(false)
+  async function handleResend() {
+    setSending(true)
+    try {
+      await sendVerification(email)
+      toast.success("Verification code resent")
+      setCountdown(60)
+      setCanResend(false)
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to resend code")
+    } finally {
+      setSending(false)
+    }
   }
 
-  function handleVerify() {
+  async function handleVerify() {
     setVerifying(true)
-    setTimeout(() => {
-      setVerifying(false)
+    try {
+      await verifyEmail(email, code.join(""))
       setVerified(true)
-    }, 1500)
+    } catch (e: any) {
+      toast.error(e?.message || "Invalid verification code")
+    } finally {
+      setVerifying(false)
+    }
   }
 
   if (verified) {
@@ -85,7 +110,7 @@ export default function VerifyEmailPage() {
           <CardTitle>Check your email</CardTitle>
           <CardDescription>
             We sent a 6-digit verification code to{" "}
-            <span className="font-medium text-foreground">john@example.com</span>
+            <span className="font-medium text-foreground">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -105,13 +130,13 @@ export default function VerifyEmailPage() {
             ))}
           </div>
           <Button className="mt-6 w-full" onClick={handleVerify} disabled={code.some((d) => !d) || verifying}>
-            {verifying ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+            {verifying && <Loader2 className="mr-2 size-4 animate-spin" />}
             Verify Email
           </Button>
           <div className="mt-4 text-center text-sm text-muted-foreground">
             {canResend ? (
-              <button onClick={handleResend} className="font-medium text-primary hover:underline">
-                Resend verification code
+              <button onClick={handleResend} disabled={sending} className="font-medium text-primary hover:underline disabled:opacity-50">
+                {sending ? "Sending..." : "Resend verification code"}
               </button>
             ) : (
               <span>Resend code in {countdown}s</span>
