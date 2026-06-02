@@ -1,14 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Truck } from "lucide-react"
+import { Truck, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
+import { login } from "@/lib/api/auth"
+import { useAuth } from "@/lib/auth-context"
+import { toast } from "sonner"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -18,6 +22,8 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
+  const [loading, setLoading] = useState(false)
+  const { refresh } = useAuth()
   const {
     register,
     handleSubmit,
@@ -26,8 +32,17 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   })
 
-  function onSubmit(data: LoginForm) {
-    window.location.href = "/dashboard"
+  async function onSubmit(data: LoginForm) {
+    setLoading(true)
+    try {
+      await login(data)
+      await refresh()
+      window.location.href = "/dashboard"
+    } catch (e: any) {
+      toast.error(e?.message || "Invalid email or password")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -59,7 +74,8 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
                 Sign In
               </Button>
             </FieldGroup>
