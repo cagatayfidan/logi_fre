@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, MapPin, Calendar, Star, Pencil, XCircle } from "lucide-react"
+import { ArrowLeft, MapPin, Calendar, Star, Pencil, XCircle, Loader2 } from "lucide-react"
 import { buttonVariants, Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +17,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { getMoveById } from "@/lib/data"
+import { NavHeader } from "@/components/nav-header"
+import { fetchMoveById } from "@/lib/api/moves"
+import type { MoveRequest } from "@/lib/api/moves"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   active: { label: "Active", variant: "default" },
@@ -28,8 +30,24 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 export default function MoveDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const move = getMoveById(params.id as string)
+  const [move, setMove] = useState<MoveRequest | null>(null)
+  const [loading, setLoading] = useState(true)
   const [cancelOpen, setCancelOpen] = useState(false)
+
+  useEffect(() => {
+    fetchMoveById(params.id as string)
+      .then(setMove)
+      .catch(() => setMove(null))
+      .finally(() => setLoading(false))
+  }, [params.id])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   if (!move) {
     return (
@@ -45,7 +63,9 @@ export default function MoveDetailPage() {
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-4 py-6">
+    <div className="min-h-screen bg-background">
+      <NavHeader />
+      <div className="mx-auto max-w-2xl px-4 py-6">
       <Link
         href="/dashboard"
         className="mb-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -192,6 +212,7 @@ export default function MoveDetailPage() {
           </Link>
         </div>
       </div>
+    </div>
     </div>
   )
 }

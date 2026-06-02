@@ -2,25 +2,36 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Truck, ArrowLeft, Mail, CheckCircle } from "lucide-react"
+import { Truck, ArrowLeft, Mail, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
+import { forgotPassword } from "@/lib/api/auth"
+import { toast } from "sonner"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!email.trim() || !email.includes("@")) {
       setError("Please enter a valid email address")
       return
     }
     setError("")
-    setSubmitted(true)
+    setLoading(true)
+    try {
+      await forgotPassword(email)
+      setSubmitted(true)
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to send reset link")
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {
@@ -83,7 +94,8 @@ export default function ForgotPasswordPage() {
                 />
                 <FieldError errors={[{ message: error }]} />
               </Field>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
                 Send Reset Link
               </Button>
             </FieldGroup>
