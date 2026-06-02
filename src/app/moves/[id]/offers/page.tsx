@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Star, Clock, Scale, X } from "lucide-react"
+import { ArrowLeft, Star, Clock, Scale, X, Loader2 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,8 +17,11 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getMoveById, getOffersByMoveId, isOfferExpired } from "@/lib/data"
-import type { Offer } from "@/lib/data"
+import { useData } from "@/lib/use-data"
+import { fetchOffersByMove } from "@/lib/api/offers"
+import { fetchMoveById } from "@/lib/api/moves"
+import type { MoveRequest } from "@/lib/api/moves"
+import type { Offer } from "@/lib/api/offers"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   pending: { label: "Pending", variant: "outline" },
@@ -28,6 +31,11 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 }
 
 const statusFilters = ["all", "pending", "accepted", "expired", "rejected"] as const
+
+function isOfferExpired(offer: Offer) {
+  if (!offer.expiresAt) return false
+  return new Date(offer.expiresAt) < new Date()
+}
 
 function CompareDialog({ offers, onClose }: { offers: Offer[]; onClose: () => void }) {
   return (
@@ -101,8 +109,8 @@ function CompareDialog({ offers, onClose }: { offers: Offer[]; onClose: () => vo
 
 export default function OffersPage() {
   const params = useParams()
-  const move = getMoveById(params.id as string)
-  const offers = getOffersByMoveId(params.id as string)
+  const { data: move, loading: moveLoading } = useData(() => fetchMoveById(params.id as string), undefined as unknown as MoveRequest)
+  const { data: offers, loading: offersLoading } = useData(() => fetchOffersByMove(params.id as string), [] as Offer[])
   const [sort, setSort] = useState("price-asc")
   const [statusTab, setStatusTab] = useState("all")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -130,6 +138,14 @@ export default function OffersPage() {
   }
 
   const selectedOffers = offers.filter((o) => selectedIds.has(o.id))
+
+  if (moveLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   if (!move) {
     return (

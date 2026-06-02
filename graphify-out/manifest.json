@@ -10,13 +10,13 @@
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/next.config.ts": {
-    "mtime": 1780241348.9887366,
-    "ast_hash": "24b5dd234ad38eb42778bed0765a8aec",
+    "mtime": 1780319299.667396,
+    "ast_hash": "79da8596c26ad9abd323ba13cb98958c",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/package.json": {
-    "mtime": 1780241349.0177372,
-    "ast_hash": "88be4063e5026546e1eb6d4194d8661c",
+    "mtime": 1780254404.9510741,
+    "ast_hash": "940a9e3a672717a33756a8be13bc4eef",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/postcss.config.mjs": {
@@ -35,113 +35,113 @@
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/layout.tsx": {
-    "mtime": 1780241349.1862662,
-    "ast_hash": "8686e71d25b890ffeda3e11ba23dbf09",
+    "mtime": 1780254405.034984,
+    "ast_hash": "b51b538411f0ce70598f7015ef205eda",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/page.tsx": {
-    "mtime": 1780241349.3182929,
-    "ast_hash": "118f212531101d0c97286ecbd13e3caf",
+    "mtime": 1780254405.1199875,
+    "ast_hash": "8393c2fe672c05a4e543beca775126ec",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/forgot-password/page.tsx": {
-    "mtime": 1780241349.0487375,
+    "mtime": 1780254401.4825985,
     "ast_hash": "c324b39b9ef391e65c3349431e9202f4",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/login/page.tsx": {
-    "mtime": 1780241349.0627387,
+    "mtime": 1780254401.497599,
     "ast_hash": "94eeadc495802d7a471edae665ef3d28",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/profile/page.tsx": {
-    "mtime": 1780241349.0777385,
+    "mtime": 1780262417.9835453,
     "ast_hash": "c6910ca7e0021f82dc3dacb5f179de6a",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/register/page.tsx": {
-    "mtime": 1780241349.0907376,
+    "mtime": 1780254401.5290127,
     "ast_hash": "5d8fc8308db506aa5ec3518056436044",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/reset-password/page.tsx": {
-    "mtime": 1780241349.1067443,
+    "mtime": 1780254401.5460126,
     "ast_hash": "d5f3f30706917931c0cf0356ffbe0853",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/role/page.tsx": {
-    "mtime": 1780241349.1202693,
+    "mtime": 1780254401.5620117,
     "ast_hash": "8a0fda476c16de37db73f44345f6b091",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/auth/verify-email/page.tsx": {
-    "mtime": 1780241349.1342647,
+    "mtime": 1780254401.578015,
     "ast_hash": "85ff7b60e23c14394c19b7391df46417",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/contracts/page.tsx": {
-    "mtime": 1780241349.1612673,
-    "ast_hash": "e6c36f6898783446886463511d11fefe",
+    "mtime": 1780319299.8758326,
+    "ast_hash": "f9a3a0e26f7f2b4842b9d331d607c21f",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/contracts/[id]/page.tsx": {
-    "mtime": 1780241349.152265,
-    "ast_hash": "8c829dde3dacab1747872f931ff84234",
+    "mtime": 1780254404.9940755,
+    "ast_hash": "f691d2c9caba899539a0e709ff9a2fb6",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/dashboard/page.tsx": {
-    "mtime": 1780241349.1732655,
-    "ast_hash": "26adc3249f7c378cb7e1eb15daa24c3b",
+    "mtime": 1780319299.8974142,
+    "ast_hash": "c67015ed63301e4c63fcd0c350aa3d56",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/page.tsx": {
-    "mtime": 1780241349.299292,
-    "ast_hash": "ef7a51ad46f9fb539b636d8691fb1e11",
+    "mtime": 1780319299.9191859,
+    "ast_hash": "50c67961b3a702890305bd2243334935",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/create/page.tsx": {
-    "mtime": 1780241349.2912962,
-    "ast_hash": "5c0b3e74ee915ece9d1ca9929de7c563",
+    "mtime": 1780254405.081986,
+    "ast_hash": "df2ba972de42dbe7112e9724dc281a0c",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/[id]/page.tsx": {
-    "mtime": 1780241349.277297,
+    "mtime": 1780262259.394086,
     "ast_hash": "0662321b3f9912dc5da344784057864c",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/[id]/edit/page.tsx": {
-    "mtime": 1780241349.2132668,
+    "mtime": 1780254401.6430132,
     "ast_hash": "55ffe23fd79989d48fd1650648821ca9",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/[id]/offer/page.tsx": {
-    "mtime": 1780241349.2297819,
+    "mtime": 1780254401.6650121,
     "ast_hash": "3a93031b01eeac89effedcb7330163e9",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/[id]/offers/page.tsx": {
-    "mtime": 1780241349.2677782,
-    "ast_hash": "1661e27873287e4e7ed34d2b6f68e96c",
+    "mtime": 1780262259.3770783,
+    "ast_hash": "43357e03da2dcd6166d75f3f98ad65aa",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/moves/[id]/offers/[offerId]/page.tsx": {
-    "mtime": 1780241349.2547789,
+    "mtime": 1780254401.6880145,
     "ast_hash": "abf126c21efd9c5c326bd3a7169f0f89",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/my-offers/page.tsx": {
-    "mtime": 1780241349.3112948,
-    "ast_hash": "63053d30cc55a69ae3e45157558cee07",
+    "mtime": 1780319299.940128,
+    "ast_hash": "3063371d771d5b4c11430aab6466ea60",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/notifications/page.tsx": {
-    "mtime": 1780241562.897009,
-    "ast_hash": "8ab8cd67f29bcffec95a2785479f6b26",
+    "mtime": 1780319299.9631636,
+    "ast_hash": "295ee4579e0bbcff8beee9c069051683",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/settings/page.tsx": {
-    "mtime": 1780241349.3302927,
-    "ast_hash": "62aaeea47c05670e88664c5a42f60209",
+    "mtime": 1780319300.007095,
+    "ast_hash": "0d0f7f1ece887cc9387c16e86f520e2e",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/components/empty-state.tsx": {
@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/components/nav-header.tsx": {
-    "mtime": 1780241562.9100087,
-    "ast_hash": "6e7ba6156bfe81c5ac591274f918dd24",
+    "mtime": 1780254405.197986,
+    "ast_hash": "5bbda078a74436c226c67a76ff554d66",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/components/stepper.tsx": {
@@ -255,8 +255,8 @@
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/data.ts": {
-    "mtime": 1780241562.9250069,
-    "ast_hash": "012460106fa4d4796a40cd835e4aa2f6",
+    "mtime": 1780319300.2191095,
+    "ast_hash": "57085fed711e9078ccf94d90e66d9f17",
     "semantic_hash": ""
   },
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/utils.ts": {
@@ -352,6 +352,161 @@
   "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/public/window.svg": {
     "mtime": 1780237534.890788,
     "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/page.tsx": {
+    "mtime": 1780319299.7541378,
+    "ast_hash": "f1e27df3d81178eb33ce479d7f5e7041",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/contracts/page.tsx": {
+    "mtime": 1780319299.6942282,
+    "ast_hash": "4acbb3b5b7850ba9f06b805da1a848dd",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/disputes/page.tsx": {
+    "mtime": 1780319299.715687,
+    "ast_hash": "2e639d6ad9a940951944bc90946e0b33",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/moves/page.tsx": {
+    "mtime": 1780319299.7375624,
+    "ast_hash": "3628cba3a5eaa9f7ee6682381c9a64c6",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/payments/page.tsx": {
+    "mtime": 1780319299.7803147,
+    "ast_hash": "505138c2e0376f786c61e5a975f8ace7",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/reviews/page.tsx": {
+    "mtime": 1780319299.803651,
+    "ast_hash": "265d36483e6049aad2aa525dce476801",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/settings/page.tsx": {
+    "mtime": 1780319299.8292305,
+    "ast_hash": "1f019e9ce3bd6013e9673ffde77b413c",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/admin/tickets/page.tsx": {
+    "mtime": 1780319299.8538039,
+    "ast_hash": "e9a11c8e892162c6cacbe573cb3a31f0",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/payments/page.tsx": {
+    "mtime": 1780319299.985531,
+    "ast_hash": "489ba210e8769e9b398554af9caeb949",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/schedule/page.tsx": {
+    "mtime": 1780254405.1619847,
+    "ast_hash": "52b120d226de2a10e4aeb1492d35f010",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/app/transporters/[id]/page.tsx": {
+    "mtime": 1780319300.0381012,
+    "ast_hash": "710234d5314bbb047b48d88e1e3e29ff",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/components/size-estimation-guide.tsx": {
+    "mtime": 1780254405.2139874,
+    "ast_hash": "9fe88a44dafd7a9aaaf9f3a4523c5a3e",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/components/star-rating.tsx": {
+    "mtime": 1780254405.227988,
+    "ast_hash": "04b99ed00ec04cf47af3f0599e4e0282",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api-client.ts": {
+    "mtime": 1780319300.0541291,
+    "ast_hash": "20c38347b0a8388bf83d0590141d24c6",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/i18n-provider.tsx": {
+    "mtime": 1780254405.2629926,
+    "ast_hash": "96bf6e455dfde12dcc3e89fa521f01f3",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/i18n.ts": {
+    "mtime": 1780254405.277506,
+    "ast_hash": "8a06ea3c91d3466d64dd1cae5762e8b3",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/use-data.ts": {
+    "mtime": 1780319300.2315435,
+    "ast_hash": "0ee7db3434ae6deb1316eb458422b0b0",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/auth.ts": {
+    "mtime": 1780319300.074171,
+    "ast_hash": "88cd11fc26c469ee4e1e4ad2a710dc14",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/contracts.ts": {
+    "mtime": 1780319300.0890324,
+    "ast_hash": "99ce334bec1a906d5436896bca754fbc",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/index.ts": {
+    "mtime": 1780319300.1020737,
+    "ast_hash": "acac35aae80f83c7f4969864884084d9",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/moves.ts": {
+    "mtime": 1780319300.115105,
+    "ast_hash": "1fede0f31c5e49e6fda85799ea129a6c",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/notifications.ts": {
+    "mtime": 1780319300.152184,
+    "ast_hash": "ed90e2ea835bf191636b9632e28f1599",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/offers.ts": {
+    "mtime": 1780319300.1662302,
+    "ast_hash": "12e60d7b23324e744c49c2cb9768fcb1",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/payments.ts": {
+    "mtime": 1780319300.1783025,
+    "ast_hash": "fedda39727c440738d22c798d6cf1aa4",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/reviews.ts": {
+    "mtime": 1780319300.1913505,
+    "ast_hash": "e781fe2792b6344609abebf06312035d",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/lib/api/users.ts": {
+    "mtime": 1780319300.2045994,
+    "ast_hash": "94eeb8421b8e5550f7c8a6da54f40145",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/messages/en.json": {
+    "mtime": 1780254405.288504,
+    "ast_hash": "01e1c7131775b34ff273e5ca651254e4",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/src/messages/tr.json": {
+    "mtime": 1780254405.298504,
+    "ast_hash": "354292ecf6ec3ab07c1d311b9a790886",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/__tests__/components/size-estimation-guide.test.tsx": {
+    "mtime": 1780254404.7199109,
+    "ast_hash": "def6d4d920981d2e21fd2d4003a1ce65",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/__tests__/pages/offers.test.tsx": {
+    "mtime": 1780254404.7369127,
+    "ast_hash": "0b7e3914b810d0e6a7196a603d94acc3",
+    "semantic_hash": ""
+  },
+  "/mnt/c/Users/cagat/Desktop/logisticc/logi_fre/__tests__/pages/schedule.test.tsx": {
+    "mtime": 1780254404.7519119,
+    "ast_hash": "568e85733edd8a1af52f311ef5d43d9c",
     "semantic_hash": ""
   }
 }

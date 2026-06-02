@@ -2,12 +2,15 @@
 
 import Link from "next/link"
 import { ArrowLeft, MessageSquare, Flag, EyeOff, Eye } from "lucide-react"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { NavHeader } from "@/components/nav-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { StarRating } from "@/components/star-rating"
+import { useData } from "@/lib/use-data"
+import { apiGet, apiPost } from "@/lib/api-client"
+import { toast } from "sonner"
 
 interface AdminReview {
   id: string
@@ -20,30 +23,41 @@ interface AdminReview {
   createdAt: string
 }
 
-const mockReviews: AdminReview[] = [
-  { id: "rev-1", from: "John Doe", to: "Mike's Transport", rating: 4, comment: "Great service, on time and careful with items.", isFlagged: false, isHidden: false, createdAt: "June 10, 2026" },
-  { id: "rev-2", from: "Alice Smith", to: "Mike's Transport", rating: 5, comment: "Mike was fantastic! Very professional.", isFlagged: true, isHidden: false, createdAt: "June 11, 2026" },
-  { id: "rev-3", from: "Bob Johnson", to: "Mike's Transport", rating: 3, comment: "Okay service, but arrived a bit late.", isFlagged: false, isHidden: true, createdAt: "June 5, 2026" },
-  { id: "rev-4", from: "John Doe", to: "FastMove Inc.", rating: 5, comment: "Amazing team! Fast and careful.", isFlagged: true, isHidden: false, createdAt: "May 25, 2026" },
-]
-
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState(mockReviews)
   const [filter, setFilter] = useState<string>("all")
+  const { data: reviews, loading, error } = useData(
+    () => apiGet<AdminReview[]>("/api/reviews/flagged"),
+    [],
+  )
 
-  const filtered = reviews.filter((r) => {
+  const [localReviews, setLocalReviews] = useState<AdminReview[] | null>(null)
+  const display = localReviews ?? reviews
+
+  const filtered = display.filter((r) => {
     if (filter === "flagged") return r.isFlagged
     if (filter === "hidden") return r.isHidden
     return true
   })
 
-  function toggleHidden(id: string) {
-    setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, isHidden: !r.isHidden } : r)))
-  }
+  const toggleHidden = useCallback(async (id: string) => {
+    setLocalReviews((prev) => (prev || reviews).map((r) => (r.id === id ? { ...r, isHidden: !r.isHidden } : r)))
+    try {
+      await apiPost(`/api/reviews/${id}/hide`)
+    } catch {
+      setLocalReviews((prev) => (prev || reviews).map((r) => (r.id === id ? { ...r, isHidden: !r.isHidden } : r)))
+      toast.error("Failed to update review")
+    }
+  }, [reviews])
 
-  function unflag(id: string) {
-    setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, isFlagged: false } : r)))
-  }
+  const unflag = useCallback(async (id: string) => {
+    setLocalReviews((prev) => (prev || reviews).map((r) => (r.id === id ? { ...r, isFlagged: false } : r)))
+    try {
+      await apiPost(`/api/reviews/${id}/unflag`)
+    } catch {
+      setLocalReviews((prev) => (prev || reviews).map((r) => (r.id === id ? { ...r, isFlagged: true } : r)))
+      toast.error("Failed to unflag review")
+    }
+  }, [reviews])
 
   return (
     <div className="min-h-screen bg-background">

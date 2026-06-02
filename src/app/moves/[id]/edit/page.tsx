@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { useParams } from "next/navigation"
+import { useState, useRef, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Sofa, Bed, Table, Package, Refrigerator, MoreHorizontal, Upload, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,7 +14,9 @@ import { Badge } from "@/components/ui/badge"
 import { Stepper } from "@/components/stepper"
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
-import { getMoveById } from "@/lib/data"
+import { fetchMoveById, updateMove } from "@/lib/api/moves"
+import type { MoveRequest } from "@/lib/api/moves"
+import { toast } from "sonner"
 
 const steps = [
   { label: "Addresses" },
@@ -49,24 +51,52 @@ const presetItems = [
 
 export default function EditMovePage() {
   const params = useParams()
-  const existing = getMoveById(params.id as string)
+  const router = useRouter()
+
+  const [existing, setExisting] = useState<MoveRequest | null>(null)
+  const [pageLoading, setPageLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const [currentStep, setCurrentStep] = useState(0)
-  const [origin, setOrigin] = useState(existing?.origin ?? "")
-  const [destination, setDestination] = useState(existing?.destination ?? "")
-  const [pickupDate, setPickupDate] = useState(existing?.pickupDate ?? "")
-  const [pickupTimeStart, setPickupTimeStart] = useState(existing?.pickupTimeStart ?? "09:00")
-  const [pickupTimeEnd, setPickupTimeEnd] = useState(existing?.pickupTimeEnd ?? "12:00")
-  const [deliveryDate, setDeliveryDate] = useState(existing?.deliveryDate ?? "")
-  const [deliveryTimeStart, setDeliveryTimeStart] = useState(existing?.deliveryTimeStart ?? "13:00")
-  const [deliveryTimeEnd, setDeliveryTimeEnd] = useState(existing?.deliveryTimeEnd ?? "17:00")
-  const [items, setItems] = useState<FormItem[]>(
-    existing?.items.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, weight: i.weight, fragile: i.fragile })) ?? []
-  )
+  const [origin, setOrigin] = useState("")
+  const [destination, setDestination] = useState("")
+  const [pickupDate, setPickupDate] = useState("")
+  const [pickupTimeStart, setPickupTimeStart] = useState("09:00")
+  const [pickupTimeEnd, setPickupTimeEnd] = useState("12:00")
+  const [deliveryDate, setDeliveryDate] = useState("")
+  const [deliveryTimeStart, setDeliveryTimeStart] = useState("13:00")
+  const [deliveryTimeEnd, setDeliveryTimeEnd] = useState("17:00")
+  const [items, setItems] = useState<FormItem[]>([])
   const [photos, setPhotos] = useState<FormPhoto[]>([])
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    fetchMoveById(params.id as string)
+      .then((move) => {
+        setExisting(move)
+        setOrigin(move.origin)
+        setDestination(move.destination)
+        setPickupDate(move.pickupDate)
+        setPickupTimeStart(move.pickupTimeStart)
+        setPickupTimeEnd(move.pickupTimeEnd)
+        setDeliveryDate(move.deliveryDate)
+        setDeliveryTimeStart(move.deliveryTimeStart)
+        setDeliveryTimeEnd(move.deliveryTimeEnd)
+        setItems(move.items.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, weight: i.weight, fragile: i.fragile })))
+      })
+      .catch(() => setExisting(null))
+      .finally(() => setPageLoading(false))
+  }, [params.id])
+
+  if (pageLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   if (!existing) {
     return (
@@ -138,9 +168,27 @@ export default function EditMovePage() {
     setErrors({})
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!existing) return
-    window.location.href = `/moves/${existing.id}`
+    setSaving(true)
+    try {
+      await updateMove(existing.id, {
+        origin,
+        destination,
+        pickupDate,
+        pickupTimeStart,
+        pickupTimeEnd,
+        deliveryDate,
+        deliveryTimeStart,
+        deliveryTimeEnd,
+        items: items.map((i) => ({ id: i.id, name: i.name, quantity: i.quantity, weight: i.weight, fragile: i.fragile })),
+      })
+      router.push(`/moves/${existing.id}`)
+    } catch {
+      toast.error("Failed to update move")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const totalWeight = items.reduce((sum, item) => sum + item.weight * item.quantity, 0)
@@ -476,7 +524,10 @@ export default function EditMovePage() {
           {currentStep < 3 ? (
             <Button onClick={handleNext}>Next</Button>
           ) : (
-            <Button onClick={handleSave}>Save Changes</Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Save Changes
+            </Button>
           )}
         </CardFooter>
       </Card>
