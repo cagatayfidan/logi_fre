@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { ArrowLeft, Lock, Camera, CreditCard, Plus, Trash2, Landmark } from "lucide-react"
+import { ArrowLeft, Lock, Camera, CreditCard, Plus, Trash2, Landmark, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -28,10 +28,14 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { currentUser, getPaymentMethods, getPayoutMethods } from "@/lib/data"
-import type { PaymentMethod, PayoutMethod } from "@/lib/data"
+import { useAuth } from "@/lib/auth-context"
+import { updateProfile } from "@/lib/api/auth"
+import { changePassword, updateNotificationPreferences, deleteAccount } from "@/lib/api/users"
+import { fetchPaymentMethods, addPaymentMethod, deletePaymentMethod, fetchPayoutSchedule, updatePayoutSchedule } from "@/lib/api/payments"
+import { useData } from "@/lib/use-data"
 import { useT } from "@/lib/i18n-provider"
 import { setLocale, getLocaleLabel, type Locale, locales } from "@/lib/i18n"
+import type { PaymentMethod, PayoutSchedule } from "@/lib/api/payments"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -66,18 +70,39 @@ interface NotificationPrefs {
   reviewAlerts: boolean
 }
 
+const defaultPayoutSchedule: PayoutSchedule = {
+  frequency: 'weekly',
+  dayOfWeek: 1,
+  dayOfMonth: 1,
+  minimumPayoutAmount: 10,
+  isActive: true,
+}
+
 export default function SettingsPage() {
   const { t, locale } = useT()
-  const user = currentUser
+  const { user, refresh } = useAuth()
+
+  const [profileInitialized, setProfileInitialized] = useState(false)
 
   const profileForm = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user.name,
-      phone: user.phone ?? "",
-      address: user.address ?? "",
+      name: user?.name ?? "",
+      phone: user?.phone ?? "",
+      address: "",
     },
   })
+
+  useEffect(() => {
+    if (user && !profileInitialized) {
+      profileForm.reset({
+        name: user.name,
+        phone: user.phone ?? "",
+        address: "",
+      })
+      setProfileInitialized(true)
+    }
+  }, [user, profileInitialized, profileForm])
 
   const passwordForm = useForm<PasswordForm>({
     resolver: zodResolver(passwordSchema),
@@ -118,21 +143,29 @@ export default function SettingsPage() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(getPaymentMethods(user.id))
+
+  const { data: apiPaymentMethods, loading: pmLoading } = useData(fetchPaymentMethods, [])
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+
+  useEffect(() => {
+    if (apiPaymentMethods.length > 0 && paymentMethods.length === 0) {
+      setPaymentMethods(apiPaymentMethods)
+    }
+  }, [apiPaymentMethods, paymentMethods.length])
+
   const [showAddCard, setShowAddCard] = useState(false)
   const [newCardLast4, setNewCardLast4] = useState("")
-  const [payoutMethods, setPayoutMethods] = useState<PayoutMethod[]>(getPayoutMethods(user.id))
   const [showAddPayout, setShowAddPayout] = useState(false)
   const [newPayoutLast4, setNewPayoutLast4] = useState("")
   const [newPayoutBank, setNewPayoutBank] = useState("")
 
-  const [payoutSchedule, setPayoutSchedule] = useState({
-    frequency: 'weekly' as 'weekly' | 'biweekly' | 'monthly',
-    dayOfWeek: 1,
-    dayOfMonth: 1,
-    minimumPayoutAmount: 10,
-    isActive: true,
-  })
+  const { data: fetchedSchedule } = useData(fetchPayoutSchedule, defaultPayoutSchedule)
+  const [payoutSchedule, setPayoutSchedule] = useState<PayoutSchedule>(fetchedSchedule)
+
+  useEffect(() => {
+    setPayoutSchedule(fetchedSchedule)
+  }, [fetchedSchedule])
+
   const [scheduleChanged, setScheduleChanged] = useState(false)
 
   function handleScheduleChange(key: string, value: string | number | boolean) {
@@ -140,30 +173,45 @@ export default function SettingsPage() {
     setScheduleChanged(true)
   }
 
-  function onProfileSubmit(data: ProfileForm) {
-    console.log("Profile", data)
-    toast.success("Profile updated successfully")
+  async function onProfileSubmit(data: ProfileForm) {
+    try {
+      const { address: _, ...profileData } = data
+      await updateProfile(profileData)
+      await refresh()
+      toast.success("Profile updated successfully")
+    } catch {
+      toast.error("Failed to update profile")
+    }
   }
 
-  function onPasswordSubmit(data: PasswordForm) {
-    console.log("Password", data)
-    toast.success("Password updated successfully")
-    passwordForm.reset()
+  async function onPasswordSubmit(data: PasswordForm) {
+    try {
+      await changePassword(data.currentPassword, data.newPassword)
+      toast.success("Password updated successfully")
+      passwordForm.reset()
+    } catch {
+      toast.error("Failed to update password")
+    }
   }
 
-  function toggleNotification(key: keyof NotificationPrefs) {
-    setNotifications((prev) => {
-      const next = { ...prev, [key]: !prev[key] }
-      const labels: Record<string, string> = {
-        emailNotifications: "Email",
-        pushNotifications: "Push",
-        offerAlerts: "Offer alerts",
-        contractUpdates: "Contract updates",
-        reviewAlerts: "Review alerts",
-      }
-      toast.success(`${labels[key] || key} ${next[key] ? "enabled" : "disabled"}`)
-      return next
-    })
+  const notificationLabels: Record<string, string> = {
+    emailNotifications: "Email",
+    pushNotifications: "Push",
+    offerAlerts: "Offer alerts",
+    contractUpdates: "Contract updates",
+    reviewAlerts: "Review alerts",
+  }
+
+  async function toggleNotification(key: keyof NotificationPrefs) {
+    const next = { ...notifications, [key]: !notifications[key] }
+    setNotifications(next)
+    try {
+      await updateNotificationPreferences(next)
+      toast.success(`${notificationLabels[key] || key} ${next[key] ? "enabled" : "disabled"}`)
+    } catch {
+      setNotifications(notifications)
+      toast.error("Failed to update notification preferences")
+    }
   }
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -173,10 +221,80 @@ export default function SettingsPage() {
     }
   }
 
-  function handleDeleteAccount() {
-    setDeleteDialogOpen(false)
-    setDeleteConfirmText("")
-    toast.success("Account deleted successfully")
+  async function handleDeleteAccount() {
+    try {
+      await deleteAccount()
+      setDeleteDialogOpen(false)
+      setDeleteConfirmText("")
+      toast.success("Account deleted successfully")
+    } catch {
+      toast.error("Failed to delete account")
+    }
+  }
+
+  async function handleAddCard() {
+    try {
+      const newMethod = await addPaymentMethod({ token: newCardLast4, type: 'card', setAsDefault: paymentMethods.length === 0 })
+      setPaymentMethods(prev => [...prev, newMethod])
+      setNewCardLast4("")
+      setShowAddCard(false)
+      toast.success("Card added")
+    } catch {
+      toast.error("Failed to add card")
+    }
+  }
+
+  async function handleDeletePaymentMethod(id: string) {
+    try {
+      await deletePaymentMethod(id)
+      setPaymentMethods(prev => prev.filter(m => m.id !== id))
+    } catch {
+      toast.error("Failed to remove payment method")
+    }
+  }
+
+  async function handleAddPayout() {
+    try {
+      const bankAccounts = paymentMethods.filter(pm => pm.type === 'bank_account')
+      const newMethod = await addPaymentMethod({ token: newPayoutLast4, type: 'bank_account', setAsDefault: bankAccounts.length === 0 })
+      setPaymentMethods(prev => [...prev, newMethod])
+      setNewPayoutLast4("")
+      setNewPayoutBank("")
+      setShowAddPayout(false)
+      toast.success("Payout account added")
+    } catch {
+      toast.error("Failed to add payout account")
+    }
+  }
+
+  async function handleDeletePayoutMethod(id: string) {
+    try {
+      await deletePaymentMethod(id)
+      setPaymentMethods(prev => prev.filter(m => m.id !== id))
+    } catch {
+      toast.error("Failed to remove payout account")
+    }
+  }
+
+  async function handleScheduleSave() {
+    try {
+      await updatePayoutSchedule(payoutSchedule)
+      setScheduleChanged(false)
+      toast.success('Payout schedule saved')
+    } catch {
+      toast.error('Failed to save payout schedule')
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavHeader />
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    )
   }
 
   const initials = user.name
@@ -191,9 +309,12 @@ export default function SettingsPage() {
     passwordValues.newPassword &&
     passwordValues.confirmPassword
 
+  const cardMethods = paymentMethods.filter(pm => pm.type === 'card')
+  const bankMethods = paymentMethods.filter(pm => pm.type === 'bank_account')
+
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role={user.role} userName={user.name} />
+      <NavHeader />
       <main className="mx-auto max-w-2xl px-4 py-6">
         <Link
           href="/dashboard"
@@ -425,33 +546,39 @@ export default function SettingsPage() {
             <CardDescription>Manage your saved payment cards</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {paymentMethods.map((pm) => (
-                <div key={pm.id} className="flex items-center justify-between rounded-lg border p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
-                      <CreditCard className="size-5 text-primary" />
+            {pmLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="size-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {cardMethods.map((pm) => (
+                  <div key={pm.id} className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
+                        <CreditCard className="size-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {pm.brand} •••• {pm.last4}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Expires {String(pm.expiryMonth).padStart(2, "0")}/{pm.expiryYear}
+                          {pm.isDefault && " · Default"}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {pm.brand} •••• {pm.last4}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Expires {String(pm.expiryMonth).padStart(2, "0")}/{pm.expiryYear}
-                        {pm.isDefault && " · Default"}
-                      </p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => handleDeletePaymentMethod(pm.id)}
+                    >
+                      <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => setPaymentMethods((prev) => prev.filter((m) => m.id !== pm.id))}
-                  >
-                    <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {showAddCard ? (
               <div className="mt-3 space-y-3 rounded-lg border p-3">
@@ -466,23 +593,7 @@ export default function SettingsPage() {
                   <Button
                     size="sm"
                     disabled={newCardLast4.length !== 4}
-                    onClick={() => {
-                      setPaymentMethods((prev) => [
-                        ...prev,
-                        {
-                          id: `pm-${Date.now()}`,
-                          type: "card",
-                          last4: newCardLast4,
-                          brand: "Card",
-                          expiryMonth: 12,
-                          expiryYear: 2028,
-                          isDefault: prev.length === 0,
-                          createdAt: new Date().toLocaleDateString(),
-                        },
-                      ])
-                      setNewCardLast4("")
-                      setShowAddCard(false)
-                    }}
+                    onClick={handleAddCard}
                   >
                     Add Card
                   </Button>
@@ -516,32 +627,38 @@ export default function SettingsPage() {
                 <CardDescription>Manage your payout accounts to receive payments</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {payoutMethods.map((pm) => (
-                    <div key={pm.id} className="flex items-center justify-between rounded-lg border p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
-                          <Landmark className="size-5 text-primary" />
+                {pmLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {bankMethods.map((pm) => (
+                      <div key={pm.id} className="flex items-center justify-between rounded-lg border p-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
+                            <Landmark className="size-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {pm.brand ?? "Bank Account"} •••• {pm.last4}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {pm.isDefault ? "Default" : "Backup"}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {pm.bankName ?? "Bank Account"} •••• {pm.last4}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {pm.isDefault ? "Default" : "Backup"}
-                          </p>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleDeletePayoutMethod(pm.id)}
+                        >
+                          <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => setPayoutMethods((prev) => prev.filter((m) => m.id !== pm.id))}
-                      >
-                        <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 {showAddPayout ? (
                   <div className="mt-3 space-y-3 rounded-lg border p-3">
@@ -561,22 +678,7 @@ export default function SettingsPage() {
                       <Button
                         size="sm"
                         disabled={newPayoutLast4.length !== 4}
-                        onClick={() => {
-                          setPayoutMethods((prev) => [
-                            ...prev,
-                            {
-                              id: `po-${Date.now()}`,
-                              type: "bank_account",
-                              last4: newPayoutLast4,
-                              bankName: newPayoutBank || "Bank Account",
-                              isDefault: prev.length === 0,
-                              createdAt: new Date().toLocaleDateString(),
-                            },
-                          ])
-                          setNewPayoutLast4("")
-                          setNewPayoutBank("")
-                          setShowAddPayout(false)
-                        }}
+                        onClick={handleAddPayout}
                       >
                         Add Account
                       </Button>
@@ -696,10 +798,7 @@ export default function SettingsPage() {
                   <Button
                     type="button"
                     disabled={!scheduleChanged}
-                    onClick={() => {
-                      setScheduleChanged(false)
-                      toast.success('Payout schedule saved')
-                    }}
+                    onClick={handleScheduleSave}
                   >
                     Save Schedule
                   </Button>

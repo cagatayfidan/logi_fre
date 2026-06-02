@@ -8,35 +8,41 @@ import { Input } from "@/components/ui/input"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NavHeader } from "@/components/nav-header"
-import { currentUser } from "@/lib/data"
-
-const mockUsers = [
-  { id: "user-1", name: "John Doe", email: "john@example.com", role: "shipper", status: "active", moves: 3, contracts: 2 },
-  { id: "user-2", name: "Mike Transporter", email: "mike@example.com", role: "transporter", status: "active", moves: 0, contracts: 3 },
-  { id: "user-5", name: "FastMove Inc.", email: "fast@example.com", role: "transporter", status: "active", moves: 0, contracts: 2 },
-  { id: "user-6", name: "Budget Van Co.", email: "budget@example.com", role: "transporter", status: "suspended", moves: 0, contracts: 1 },
-]
+import { useAuth } from "@/lib/auth-context"
+import { useData } from "@/lib/use-data"
+import { fetchAdminStats, fetchAdminUsers, suspendUser } from "@/lib/api/admin"
+import type { AdminUser, PaginatedResponse } from "@/lib/api/admin"
+import { toast } from "sonner"
 
 export default function AdminPage() {
   const [search, setSearch] = useState("")
-  const [suspended, setSuspended] = useState<Set<string>>(new Set(["user-6"]))
+  const { user } = useAuth()
+  const { data: stats, loading: statsLoading } = useData(fetchAdminStats, {
+    totalUsers: 0, totalMoves: 0, totalContracts: 0, totalPayments: 0, totalVolume: 0,
+  })
+  const { data: usersData, loading: usersLoading } = useData(
+    () => fetchAdminUsers(1, 100),
+    { users: [], total: 0, page: 1, totalPages: 0 } as PaginatedResponse<AdminUser>,
+  )
 
-  const filtered = mockUsers.filter(
+  const filtered = (usersData.users || []).filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase()),
   )
 
-  const stats = {
-    totalUsers: mockUsers.length,
-    activeUsers: mockUsers.filter((u) => u.status === "active").length,
-    totalMoves: 5,
-    totalContracts: 4,
+  async function handleSuspend(id: string, isSuspended: boolean) {
+    try {
+      await suspendUser(id)
+      toast.success(isSuspended ? "User reactivated" : "User suspended")
+    } catch {
+      toast.error("Failed to update user status")
+    }
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role="admin" userName="Admin" />
+      <NavHeader role="admin" userName={user?.name || "Admin"} />
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="mb-6 flex items-center gap-2">
           <ShieldAlert className="size-6 text-primary" />
@@ -88,8 +94,8 @@ export default function AdminPage() {
             <CardContent className="flex items-center gap-3 p-4">
               <Users className="size-8 text-emerald-600" />
               <div>
-                <p className="text-2xl font-bold">{stats.activeUsers}</p>
-                <p className="text-xs text-muted-foreground">Active Users</p>
+                <p className="text-2xl font-bold">${(stats.totalVolume || 0).toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Total Volume</p>
               </div>
             </CardContent>
           </Card>
@@ -146,20 +152,15 @@ export default function AdminPage() {
                     <Badge variant={u.role === "transporter" ? "default" : "secondary"}>
                       {u.role === "transporter" ? "Transporter" : "Shipper"}
                     </Badge>
-                    <Badge variant={suspended.has(u.id) ? "destructive" : "outline"}>
-                      {suspended.has(u.id) ? "Suspended" : "Active"}
+                    <Badge variant={u.isSuspended ? "destructive" : "outline"}>
+                      {u.isSuspended ? "Suspended" : "Active"}
                     </Badge>
                     <Button
-                      variant={suspended.has(u.id) ? "outline" : "destructive"}
+                      variant={u.isSuspended ? "outline" : "destructive"}
                       size="sm"
-                      onClick={() => {
-                        const next = new Set(suspended)
-                        if (next.has(u.id)) next.delete(u.id)
-                        else next.add(u.id)
-                        setSuspended(next)
-                      }}
+                      onClick={() => handleSuspend(u.id, !!u.isSuspended)}
                     >
-                      {suspended.has(u.id) ? "Reactivate" : "Suspend"}
+                      {u.isSuspended ? "Reactivate" : "Suspend"}
                     </Button>
                   </div>
                 </div>

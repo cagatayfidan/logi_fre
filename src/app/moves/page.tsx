@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Search, MapPin, Calendar, Package2, DollarSign, Star, User } from "lucide-react"
+import { Search, MapPin, Calendar, Package2, DollarSign, Star, User, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,14 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { mockMoves, getReviewRatingProfile } from "@/lib/data"
+import { fetchMoves } from "@/lib/api/moves"
+import { useData } from "@/lib/use-data"
 import { StarRating } from "@/components/star-rating"
 
 export default function AvailableMovesPage() {
   const [search, setSearch] = useState("")
   const [filterSize, setFilterSize] = useState("all")
+  const { data: apiMoves, loading } = useData(fetchMoves, [])
 
-  const filtered = mockMoves.filter((move) => {
+  const filtered = apiMoves.filter((move) => {
     if (move.status !== "active") return false
     if (search && !move.title.toLowerCase().includes(search.toLowerCase()) &&
         !move.origin.toLowerCase().includes(search.toLowerCase()) &&
@@ -37,7 +39,7 @@ export default function AvailableMovesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role="transporter" userName="Mike Transporter" />
+      <NavHeader />
       <main className="mx-auto max-w-7xl px-4 py-6">
         <h1 className="mb-6 text-2xl font-bold">Available Moves</h1>
 
@@ -65,7 +67,11 @@ export default function AvailableMovesPage() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : filtered.length === 0 ? (
             <p className="py-12 text-center text-muted-foreground">
               No available moves matching your criteria.
             </p>
