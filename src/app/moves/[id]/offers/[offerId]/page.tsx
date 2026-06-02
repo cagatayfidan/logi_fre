@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Star, Check, X, Send, Clock } from "lucide-react"
+import { ArrowLeft, Star, Check, X, Send, Clock, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -21,7 +21,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { getMoveById, getOfferById, isOfferExpired, getTimeUntil } from "@/lib/data"
+import { useData } from "@/lib/use-data"
+import { fetchOfferById, acceptOffer, rejectOffer, counterOffer } from "@/lib/api/offers"
+import { fetchMoveById } from "@/lib/api/moves"
+import type { MoveRequest } from "@/lib/api/moves"
+import type { Offer } from "@/lib/api/offers"
+import { toast } from "sonner"
 
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
   pending: { label: "Pending", variant: "outline" },
@@ -30,15 +35,30 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
   expired: { label: "Expired", variant: "secondary" },
 }
 
+function isOfferExpired(offer: Offer) {
+  if (!offer.expiresAt) return false
+  return new Date(offer.expiresAt) < new Date()
+}
+
+function getTimeUntil(isoString: string) {
+  const diff = new Date(isoString).getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, totalMs: 0 }
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  return { days, hours, minutes, totalMs: diff }
+}
+
 export default function OfferDetailPage() {
   const params = useParams()
-  const move = getMoveById(params.id as string)
-  const offer = getOfferById(params.offerId as string)
+  const router = useRouter()
+  const { data: move, loading: moveLoading } = useData(() => fetchMoveById(params.id as string), undefined as unknown as MoveRequest)
+  const { data: offer, loading: offerLoading } = useData(() => fetchOfferById(params.offerId as string), undefined as unknown as Offer)
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false)
   const [counterDialogOpen, setCounterDialogOpen] = useState(false)
   const [counterPrice, setCounterPrice] = useState(offer ? offer.price - 25 : 0)
   const [counterMessage, setCounterMessage] = useState("")
-  const [messages, setMessages] = useState(offer?.messages ?? [])
+  const [messages, setMessages] = useState<Array<{ id: string; senderId: string; senderName: string; text: string; price?: number; createdAt: string }>>([])
   const [expiryTime, setExpiryTime] = useState({ days: 0, hours: 0, minutes: 0 })
   const expired = offer ? isOfferExpired(offer) : false
   const [counterSent, setCounterSent] = useState(false)
@@ -55,6 +75,14 @@ export default function OfferDetailPage() {
     }
   }, [offer, expired])
 
+  if (moveLoading || offerLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   if (!move || !offer) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -63,29 +91,47 @@ export default function OfferDetailPage() {
     )
   }
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     setAcceptDialogOpen(false)
-    window.location.href = `/contracts/C-001`
-  }
-
-  const handleReject = () => {
-    window.location.href = `/moves/${move.id}/offers`
-  }
-
-  const handleCounterOffer = () => {
-    const newMsg = {
-      id: `msg-${Date.now()}`,
-      senderId: "user-1",
-      senderName: "John Doe",
-      text: counterMessage || `Counter offer: $${counterPrice.toFixed(2)}`,
-      price: counterPrice,
-      createdAt: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+    try {
+      const result = await acceptOffer(offer.id)
+      toast.success("Offer accepted!")
+      router.push(`/contracts/${result.contract.id}`)
+    } catch {
+      toast.error("Failed to accept offer")
     }
-    setMessages([...messages, newMsg])
-    setCounterSent(true)
-    setCounterDialogOpen(false)
-    setCounterPrice(offer.price - 25)
-    setCounterMessage("")
+  }
+
+  const handleReject = async () => {
+    try {
+      await rejectOffer(offer.id)
+      toast.success("Offer rejected")
+      router.push(`/moves/${move.id}/offers`)
+    } catch {
+      toast.error("Failed to reject offer")
+    }
+  }
+
+  const handleCounterOffer = async () => {
+    try {
+      await counterOffer(offer.id, { price: counterPrice, message: counterMessage })
+      const newMsg = {
+        id: `msg-${Date.now()}`,
+        senderId: "user-1",
+        senderName: "John Doe",
+        text: counterMessage || `Counter offer: $${counterPrice.toFixed(2)}`,
+        price: counterPrice,
+        createdAt: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+      }
+      setMessages([...messages, newMsg])
+      setCounterSent(true)
+      setCounterDialogOpen(false)
+      setCounterPrice(offer.price - 25)
+      setCounterMessage("")
+      toast.success("Counter offer sent!")
+    } catch {
+      toast.error("Failed to send counter offer")
+    }
   }
 
   return (
