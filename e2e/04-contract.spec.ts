@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { loginUser, SHIPPER, TRANSPORTER, createMove, publishMove, submitOffer, acceptOffer, fetchContracts, updateContractStatus } from './helpers'
+import { registerUser, loginUser, SHIPPER, TRANSPORTER, createMove, publishMove, submitOffer, acceptOffer, fetchContracts, updateContractStatus, browserLogin } from './helpers'
 
 test.describe('Contract Flow (Epic 4)', () => {
   let contractId: string
 
   test.beforeAll(async () => {
+    try { await registerUser(SHIPPER) } catch {}
+    try { await registerUser(TRANSPORTER) } catch {}
     await loginUser(SHIPPER)
     const move = await createMove('Antalya, TR', 'Mersin, TR')
     await publishMove(move.id)
@@ -13,8 +15,8 @@ test.describe('Contract Flow (Epic 4)', () => {
     const offer = await submitOffer(move.id, 2000)
 
     await loginUser(SHIPPER)
-    const contract = await acceptOffer(offer.id)
-    contractId = contract.id
+    const result = await acceptOffer(offer.id)
+    contractId = result.contract.id || result.contract._id
   })
 
   test('contract created with active status', async () => {
@@ -49,7 +51,7 @@ test.describe('Contract Flow (Epic 4)', () => {
   })
 
   test('contract detail page visible', async ({ page }) => {
-    await loginUser(SHIPPER)
+    await browserLogin(page, SHIPPER)
     await page.goto(`/contracts/${contractId}`)
     await expect(page.locator('text=Completed').first()).toBeVisible({ timeout: 10000 })
   })

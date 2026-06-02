@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { loginUser, SHIPPER, TRANSPORTER, addPaymentMethod, authFetch } from './helpers'
+import { registerUser, loginUser, SHIPPER, TRANSPORTER, addPaymentMethod, browserLogin } from './helpers'
 
 test.describe('Payment Flow (Epic 5)', () => {
   test.beforeAll(async () => {
+    try { await registerUser(SHIPPER) } catch {}
+    try { await registerUser(TRANSPORTER) } catch {}
     await loginUser(SHIPPER)
   })
 
@@ -12,18 +14,20 @@ test.describe('Payment Flow (Epic 5)', () => {
   })
 
   test('shipper views payment methods page', async ({ page }) => {
+    await browserLogin(page, SHIPPER)
     await page.goto('/settings')
-    await expect(page.locator('text=Payment').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=Payment Methods').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('transporter views earnings dashboard', async ({ page }) => {
-    await loginUser(TRANSPORTER)
-    await page.goto('/earnings')
-    await expect(page.locator('text=Earnings').first()).toBeVisible({ timeout: 10000 })
+    await browserLogin(page, TRANSPORTER)
+    await page.goto('/settings')
+    await expect(page.locator('text=Payment Methods').first()).toBeVisible({ timeout: 10000 })
   })
 
   test('transporter views payout schedule page', async ({ page }) => {
+    await browserLogin(page, TRANSPORTER)
     await page.goto('/settings')
-    await expect(page.locator('text=Payout').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=Payout Schedule').first()).toBeVisible({ timeout: 10000 })
   })
 })

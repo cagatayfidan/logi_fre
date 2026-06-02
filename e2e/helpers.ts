@@ -3,6 +3,12 @@ import { apiPost, apiGet, apiPatch, clearToken, setToken } from '../src/lib/api-
 import type { MoveRequest } from '../src/lib/api/moves'
 import type { Contract } from '../src/lib/api/contracts'
 
+const API_URL = process.env.API_URL || 'http://localhost:3001'
+
+function apiUrl(path: string) {
+  return `${API_URL}${path}`
+}
+
 export interface TestUser {
   email: string
   password: string
@@ -11,23 +17,30 @@ export interface TestUser {
 }
 
 export const SHIPPER: TestUser = {
-  email: `e2e-shipper-${Date.now()}@test.com`,
+  email: 'e2e-shipper@test.com',
   password: 'TestPass123!',
   name: 'E2E Shipper',
   role: 'shipper',
 }
 
 export const TRANSPORTER: TestUser = {
-  email: `e2e-transporter-${Date.now()}@test.com`,
+  email: 'e2e-transporter@test.com',
   password: 'TestPass123!',
   name: 'E2E Transporter',
   role: 'transporter',
 }
 
+export const ADMIN_USER: TestUser = {
+  email: 'e2e-admin@test.com',
+  password: 'TestPass123!',
+  name: 'E2E Admin',
+  role: 'admin',
+}
+
 let currentToken: string | null = null
 
 export async function registerUser(user: TestUser) {
-  const res = await fetch('http://localhost:3001/api/auth/register', {
+  const res = await fetch(apiUrl('/api/auth/register'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(user),
@@ -39,8 +52,18 @@ export async function registerUser(user: TestUser) {
   return res.json()
 }
 
+export async function ensureUser(user: TestUser) {
+  try {
+    return await registerUser(user)
+  } catch {
+    await loginUser(user)
+    const res = await authFetch('/api/auth/profile')
+    return res
+  }
+}
+
 export async function loginUser(user: TestUser) {
-  const res = await fetch('http://localhost:3001/api/auth/login', {
+  const res = await fetch(apiUrl('/api/auth/login'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: user.email, password: user.password }),
@@ -65,7 +88,7 @@ export async function authFetch(path: string, options?: RequestInit) {
   if (currentToken) {
     headers['Authorization'] = `Bearer ${currentToken}`
   }
-  const res = await fetch(`http://localhost:3001${path}`, {
+  const res = await fetch(apiUrl(path), {
     ...options,
     headers: { ...headers, ...((options?.headers as Record<string, string>) || {}) },
   })
@@ -95,10 +118,10 @@ export async function publishMove(id: string) {
   return authFetch(`/api/move-requests/${id}/publish`, { method: 'PATCH' })
 }
 
-export async function submitOffer(moveId: string, amount: number) {
+export async function submitOffer(moveId: string, price: number) {
   return authFetch('/api/offers', {
     method: 'POST',
-    body: JSON.stringify({ moveRequestId: moveId, amount, message: 'E2E test offer' }),
+    body: JSON.stringify({ moveRequestId: moveId, price, message: 'E2E test offer' }),
   })
 }
 
@@ -142,4 +165,14 @@ export async function fetchNotifications() {
 
 export async function fetchAdminStats() {
   return authFetch('/api/admin/stats')
+}
+
+export async function browserLogin(page: any, user: TestUser) {
+  await loginUser(user)
+  const token = getToken()
+  await page.context().addInitScript((t: string) => {
+    localStorage.setItem('token', t)
+  }, token)
+  await page.goto('/')
+  await page.waitForLoadState('networkidle')
 }

@@ -154,13 +154,13 @@ export default function MoveDetailPage() {
           </CardHeader>
           <CardContent className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
-              {move.shipperName
+              {(move.shipperName || "S")
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </div>
             <div>
-              <p className="text-sm font-medium">{move.shipperName}</p>
+              <p className="text-sm font-medium">{move.shipperName || "Shipper"}</p>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Star className="size-3.5 fill-amber-500 text-amber-500" />
                 <span>

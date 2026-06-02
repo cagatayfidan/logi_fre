@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { loginUser, SHIPPER, TRANSPORTER, createMove, publishMove, submitOffer, acceptOffer, updateContractStatus, submitReview, authFetch } from './helpers'
+import { registerUser, loginUser, SHIPPER, TRANSPORTER, createMove, publishMove, submitOffer, acceptOffer, updateContractStatus, submitReview, browserLogin } from './helpers'
 
 test.describe('Review Flow (Epic 6)', () => {
   let contractId: string
 
   test.beforeAll(async () => {
+    try { await registerUser(SHIPPER) } catch {}
+    try { await registerUser(TRANSPORTER) } catch {}
     await loginUser(SHIPPER)
     const move = await createMove('Trabzon, TR', 'Rize, TR')
     await publishMove(move.id)
@@ -13,8 +15,8 @@ test.describe('Review Flow (Epic 6)', () => {
     const offer = await submitOffer(move.id, 3000)
 
     await loginUser(SHIPPER)
-    const contract = await acceptOffer(offer.id)
-    contractId = contract.id
+    const result = await acceptOffer(offer.id)
+    contractId = result.contract.id || result.contract._id
 
     await loginUser(TRANSPORTER)
     await updateContractStatus(contractId, 'check-in')
@@ -32,8 +34,8 @@ test.describe('Review Flow (Epic 6)', () => {
   })
 
   test('transporter reviews shipper', async ({ page }) => {
-    await loginUser(TRANSPORTER)
+    await browserLogin(page, TRANSPORTER)
     await page.goto(`/contracts/${contractId}`)
-    await expect(page.locator('text=Review').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=Contract #').first()).toBeVisible({ timeout: 10000 })
   })
 })

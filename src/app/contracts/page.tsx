@@ -109,7 +109,7 @@ export default function ContractsPage() {
                               </div>
                               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 <span>{contract.transporterName}</span>
-                                <span>${contract.agreedPrice.toFixed(2)}</span>
+                                <span>${(contract.agreedPrice ?? contract.price ?? 0).toFixed(2)}</span>
                               </div>
                             </div>
                             <Badge variant={statusConfig[contract.status]?.variant ?? "outline"}>
