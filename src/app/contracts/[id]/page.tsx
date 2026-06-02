@@ -271,7 +271,7 @@ export default function ContractDetailPage() {
             <Separator />
             <div className="flex justify-between text-base font-bold">
               <span>Agreed Price</span>
-              <span>${contract.agreedPrice.toFixed(2)}</span>
+              <span>${(contract.agreedPrice ?? contract.price ?? 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-muted-foreground">
               <span>Created</span>

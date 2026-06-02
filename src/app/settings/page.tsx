@@ -160,10 +160,10 @@ export default function SettingsPage() {
   const [newPayoutBank, setNewPayoutBank] = useState("")
 
   const { data: fetchedSchedule } = useData(fetchPayoutSchedule, defaultPayoutSchedule)
-  const [payoutSchedule, setPayoutSchedule] = useState<PayoutSchedule>(fetchedSchedule)
+  const [payoutSchedule, setPayoutSchedule] = useState<PayoutSchedule>(fetchedSchedule ?? defaultPayoutSchedule)
 
   useEffect(() => {
-    setPayoutSchedule(fetchedSchedule)
+    if (fetchedSchedule) setPayoutSchedule(fetchedSchedule)
   }, [fetchedSchedule])
 
   const [scheduleChanged, setScheduleChanged] = useState(false)

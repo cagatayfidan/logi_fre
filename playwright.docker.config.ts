@@ -5,18 +5,12 @@ export default defineConfig({
   fullyParallel: false,
   retries: 1,
   workers: 1,
-  reporter: [['html'], ['list']],
+  reporter: [['html', { outputFolder: 'playwright-report' }], ['list']],
   timeout: 60000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    launchOptions: {
-      env: {
-        ...process.env,
-        LD_LIBRARY_PATH: '/home/cagatay/.local/lib',
-      },
-    },
   },
   projects: [
     {
@@ -25,14 +19,6 @@ export default defineConfig({
     },
   ],
   webServer: [
-    {
-      command: 'node dist/src/main.js',
-      cwd: '../logi_be',
-      port: 3001,
-      reuseExistingServer: true,
-      timeout: 120000,
-      env: { PORT: '3001' },
-    },
     {
       command: 'npm run dev',
       cwd: '.',

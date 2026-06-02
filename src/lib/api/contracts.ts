@@ -9,6 +9,7 @@ export interface Contract {
   transporterId: string
   transporterName: string
   agreedPrice: number
+  price?: number
   status: 'active' | 'checked_in' | 'in_transit' | 'delivered' | 'completed' | 'cancelled'
   createdAt: string
   cancelReason?: string

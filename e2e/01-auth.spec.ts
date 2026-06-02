@@ -1,45 +1,48 @@
 import { test, expect } from '@playwright/test'
-import { registerUser, loginUser, SHIPPER, TRANSPORTER, authFetch } from './helpers'
+import { registerUser, loginUser, SHIPPER, TRANSPORTER, authFetch, ensureUser } from './helpers'
 
 test.describe('Auth Flow (Epic 1)', () => {
   test('full auth lifecycle', async ({ page }) => {
+    const email = `e2e-shipper-${Date.now()}-${Math.random().toString(36).slice(2, 6)}@test.com`
+
     await page.goto('/')
 
-    await page.click('a[href="/register"]')
-    await expect(page).toHaveURL('/register')
+    await page.click('a[href="/auth/register"]')
+    await expect(page).toHaveURL('/auth/register')
 
     await page.fill('input[name="name"]', SHIPPER.name)
-    await page.fill('input[name="email"]', SHIPPER.email)
+    await page.fill('input[name="email"]', email)
     await page.fill('input[name="password"]', SHIPPER.password)
-    await page.selectOption('select[name="role"]', 'shipper')
+    await page.fill('input[name="confirmPassword"]', SHIPPER.password)
     await page.click('button[type="submit"]')
 
-    await expect(page).toHaveURL('/login', { timeout: 10000 })
+    await expect(page).toHaveURL(/\/auth\/role/, { timeout: 10000 })
 
-    await page.fill('input[name="email"]', SHIPPER.email)
+    await page.goto('/auth/login')
+    await page.fill('input[name="email"]', email)
     await page.fill('input[name="password"]', SHIPPER.password)
     await page.click('button[type="submit"]')
 
-    await expect(page).toHaveURL('/', { timeout: 10000 })
+    await expect(page).toHaveURL('/dashboard', { timeout: 10000 })
 
-    await expect(page.locator('text=E2E Shipper')).toBeVisible()
+    await expect(page.getByRole('link', { name: /my moves/i })).toBeVisible()
 
     await page.goto('/settings')
     await expect(page.locator('input[name="name"]')).toHaveValue(SHIPPER.name)
-    await expect(page.locator('input[name="email"]')).toHaveValue(SHIPPER.email)
+    await expect(page.locator('input#email')).toHaveValue(email)
   })
 
   test('register transporter', async () => {
-    const user = await registerUser(TRANSPORTER)
+    const user = await ensureUser(TRANSPORTER)
     expect(user.name).toBe(TRANSPORTER.name)
     expect(user.role).toBe('transporter')
   })
 
   test('login with wrong password shows error', async ({ page }) => {
-    await page.goto('/login')
+    await page.goto('/auth/login')
     await page.fill('input[name="email"]', SHIPPER.email)
     await page.fill('input[name="password"]', 'wrongpassword')
     await page.click('button[type="submit"]')
-    await expect(page.locator('text=Invalid credentials').or(page.locator('[role="alert"]'))).toBeVisible()
+    await expect(page.getByText('Invalid credentials')).toBeVisible()
   })
 })
