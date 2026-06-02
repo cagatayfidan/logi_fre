@@ -2,73 +2,85 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import {
-  Users,
-  Truck,
-  FileText,
-  Search,
-  ShieldAlert,
-  Star,
-  DollarSign,
-  Package,
-  AlertTriangle,
-} from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
+import { ArrowLeft, Users, Truck, FileText, Search, ShieldAlert, ClipboardList, Scale, MessageSquare, Settings, Headset, DollarSign } from "lucide-react"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NavHeader } from "@/components/nav-header"
-
-const mockStats = {
-  users: { total: 120, shippers: 80, transporters: 40, suspended: 3 },
-  moveRequests: { total: 95, active: 30, completed: 55, cancelled: 10 },
-  contracts: { total: 60, active: 8, completed: 45, cancelled: 7 },
-  payments: { totalVolume: 45000, platformFees: 2250, releasedCount: 45 },
-  reviews: { total: 88, flagged: 5, averageRating: 4.2 },
-}
-
-const mockUsers = [
-  { id: "user-1", name: "John Doe", email: "john@example.com", role: "shipper", status: "active", moves: 3, contracts: 2 },
-  { id: "user-2", name: "Mike Transporter", email: "mike@example.com", role: "transporter", status: "active", moves: 0, contracts: 3 },
-  { id: "user-5", name: "FastMove Inc.", email: "fast@example.com", role: "transporter", status: "active", moves: 0, contracts: 2 },
-  { id: "user-6", name: "Budget Van Co.", email: "budget@example.com", role: "transporter", status: "suspended", moves: 0, contracts: 1 },
-]
+import { useAuth } from "@/lib/auth-context"
+import { useData } from "@/lib/use-data"
+import { fetchAdminStats, fetchAdminUsers, suspendUser } from "@/lib/api/admin"
+import type { AdminUser, PaginatedResponse } from "@/lib/api/admin"
+import { toast } from "sonner"
 
 export default function AdminPage() {
   const [search, setSearch] = useState("")
-  const [suspended, setSuspended] = useState<Set<string>>(new Set(["user-6"]))
+  const { user } = useAuth()
+  const { data: stats, loading: statsLoading } = useData(fetchAdminStats, {
+    totalUsers: 0, totalMoves: 0, totalContracts: 0, totalPayments: 0, totalVolume: 0,
+  })
+  const { data: usersData, loading: usersLoading } = useData(
+    () => fetchAdminUsers(1, 100),
+    { users: [], total: 0, page: 1, totalPages: 0 } as PaginatedResponse<AdminUser>,
+  )
 
-  const filtered = mockUsers.filter(
+  const filtered = (usersData.users || []).filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase()),
   )
 
+  async function handleSuspend(id: string, isSuspended: boolean) {
+    try {
+      await suspendUser(id)
+      toast.success(isSuspended ? "User reactivated" : "User suspended")
+    } catch {
+      toast.error("Failed to update user status")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role="admin" userName="Admin" />
+      <NavHeader role="admin" userName={user?.name || "Admin"} />
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="mb-4 flex items-center gap-2">
           <ShieldAlert className="size-6 text-primary" />
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         </div>
 
-        {/* Admin Navigation Links */}
         <div className="mb-6 flex flex-wrap gap-2">
           <Link href="/admin/moves" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <ClipboardList className="mr-1.5 size-4" data-icon="inline-start" />
             Move Requests
           </Link>
           <Link href="/admin/disputes" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Scale className="mr-1.5 size-4" data-icon="inline-start" />
             Disputes
           </Link>
           <Link href="/admin/reviews" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <MessageSquare className="mr-1.5 size-4" data-icon="inline-start" />
             Reviews
+          </Link>
+          <Link href="/admin/contracts" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <FileText className="mr-1.5 size-4" data-icon="inline-start" />
+            Contracts
+          </Link>
+          <Link href="/admin/settings" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Settings className="mr-1.5 size-4" data-icon="inline-start" />
+            Settings
+          </Link>
+          <Link href="/admin/tickets" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <Headset className="mr-1.5 size-4" data-icon="inline-start" />
+            Tickets
+          </Link>
+          <Link href="/admin/payments" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <DollarSign className="mr-1.5 size-4" data-icon="inline-start" />
+            Payments
           </Link>
         </div>
 
-        {/* Users Row */}
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Users</p>
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Card>
             <CardContent className="flex items-center gap-3 p-4">
               <div className="flex size-10 items-center justify-center rounded-full bg-primary/10">
@@ -90,8 +102,8 @@ export default function AdminPage() {
                 <Package className="size-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockStats.users.shippers}</p>
-                <p className="text-xs text-muted-foreground">Shippers</p>
+                <p className="text-2xl font-bold">${(stats.totalVolume || 0).toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Total Volume</p>
               </div>
             </CardContent>
           </Card>
@@ -209,20 +221,15 @@ export default function AdminPage() {
                     <Badge variant={u.role === "transporter" ? "default" : "secondary"}>
                       {u.role === "transporter" ? "Transporter" : "Shipper"}
                     </Badge>
-                    <Badge variant={suspended.has(u.id) ? "destructive" : "outline"}>
-                      {suspended.has(u.id) ? "Suspended" : "Active"}
+                    <Badge variant={u.isSuspended ? "destructive" : "outline"}>
+                      {u.isSuspended ? "Suspended" : "Active"}
                     </Badge>
                     <Button
-                      variant={suspended.has(u.id) ? "outline" : "destructive"}
+                      variant={u.isSuspended ? "outline" : "destructive"}
                       size="sm"
-                      onClick={() => {
-                        const next = new Set(suspended)
-                        if (next.has(u.id)) next.delete(u.id)
-                        else next.add(u.id)
-                        setSuspended(next)
-                      }}
+                      onClick={() => handleSuspend(u.id, !!u.isSuspended)}
                     >
-                      {suspended.has(u.id) ? "Reactivate" : "Suspend"}
+                      {u.isSuspended ? "Reactivate" : "Suspend"}
                     </Button>
                   </div>
                 </div>
