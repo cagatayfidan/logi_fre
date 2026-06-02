@@ -45,8 +45,8 @@ export interface PayoutMethod {
 
 export interface Notification {
   id: string
-  userId: string
-  type: NotificationType
+  user: string
+  type: string
   title: string
   message: string
   isRead: boolean
@@ -117,7 +117,7 @@ export interface Offer {
   transporterRating: number
   transporterReviewCount: number
   transporterAvatar?: string
-  memberSince: string
+  memberSince?: string
   price: number
   message: string
   insurance: boolean
@@ -583,7 +583,7 @@ export function getSchedule(userId: string): ScheduleEvent[] {
   return events
 }
 
-export const notificationTypeIcons: Record<NotificationType, string> = {
+export const notificationTypeIcons: Record<string, string> = {
   offer_received: "💰",
   offer_accepted: "✅",
   offer_rejected: "❌",
@@ -640,7 +640,7 @@ export const mockPaymentMethods: PaymentMethod[] = [
 export const mockNotifications: Notification[] = [
   {
     id: "notif-1",
-    userId: "user-1",
+    user: "user-1",
     type: "offer_received",
     title: "New Offer Received",
     message: "Mike's Transport submitted an offer of $450 for your move Home → Apartment.",
@@ -651,7 +651,7 @@ export const mockNotifications: Notification[] = [
   },
   {
     id: "notif-2",
-    userId: "user-1",
+    user: "user-1",
     type: "offer_received",
     title: "New Offer Received",
     message: "FastMove Inc. submitted an offer of $520 for your move Home → Apartment.",
@@ -662,7 +662,7 @@ export const mockNotifications: Notification[] = [
   },
   {
     id: "notif-3",
-    userId: "user-1",
+    user: "user-1",
     type: "counter_offer",
     title: "Counter-Offer Received",
     message: "Mike's Transport countered with $425 on your offer for Home → Apartment.",
@@ -673,7 +673,7 @@ export const mockNotifications: Notification[] = [
   },
   {
     id: "notif-4",
-    userId: "user-1",
+    user: "user-1",
     type: "contract_status",
     title: "Contract Updated",
     message: "Contract C-003 for Office → Warehouse is now In Transit.",
@@ -684,7 +684,7 @@ export const mockNotifications: Notification[] = [
   },
   {
     id: "notif-5",
-    userId: "user-2",
+    user: "user-2",
     type: "offer_accepted",
     title: "Offer Accepted",
     message: "John Doe accepted your offer of $800 for Office → Warehouse.",
@@ -695,7 +695,7 @@ export const mockNotifications: Notification[] = [
   },
   {
     id: "notif-6",
-    userId: "user-1",
+    user: "user-1",
     type: "system",
     title: "Welcome to Haul!",
     message: "Welcome! Post your first move or browse available moves to get started.",
@@ -704,7 +704,7 @@ export const mockNotifications: Notification[] = [
   },
   {
     id: "notif-7",
-    userId: "user-6",
+    user: "user-6",
     type: "offer_rejected",
     title: "Offer Not Accepted",
     message: "Your offer of $380 for Home → Apartment was not accepted.",
@@ -725,12 +725,100 @@ export function getPayoutMethods(userId: string): PayoutMethod[] {
 
 export function getNotificationsForUser(userId: string): Notification[] {
   return mockNotifications
-    .filter((n) => n.userId === userId)
+    .filter((n) => n.user === userId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }
 
 export function getUnreadNotificationCount(userId: string): number {
-  return mockNotifications.filter((n) => n.userId === userId && !n.isRead).length
+  return mockNotifications.filter((n) => n.user === userId && !n.isRead).length
+}
+
+export interface Review {
+  id: string
+  fromId: string
+  fromName: string
+  fromAvatar?: string
+  toId: string
+  toName: string
+  rating: number
+  comment?: string
+  reply?: string
+  repliedAt?: string
+  createdAt: string
+}
+
+export const mockReviews: Review[] = [
+  {
+    id: "rev-1",
+    fromId: "user-1",
+    fromName: "John Doe",
+    toId: "user-2",
+    toName: "Mike's Transport",
+    rating: 4,
+    comment: "Great service, on time and careful with items.",
+    createdAt: "June 10, 2026",
+  },
+  {
+    id: "rev-2",
+    fromId: "user-3",
+    fromName: "Alice Smith",
+    toId: "user-2",
+    toName: "Mike's Transport",
+    rating: 5,
+    comment: "Mike was fantastic! Very professional and helpful.",
+    reply: "Thank you Alice! Glad to help with your move.",
+    repliedAt: "June 12, 2026",
+    createdAt: "June 11, 2026",
+  },
+  {
+    id: "rev-3",
+    fromId: "user-4",
+    fromName: "Bob Johnson",
+    toId: "user-2",
+    toName: "Mike's Transport",
+    rating: 3,
+    comment: "Okay service, but arrived a bit late.",
+    createdAt: "June 5, 2026",
+  },
+  {
+    id: "rev-4",
+    fromId: "user-1",
+    fromName: "John Doe",
+    toId: "user-5",
+    toName: "FastMove Inc.",
+    rating: 5,
+    comment: "Amazing team! Fast and careful.",
+    createdAt: "May 25, 2026",
+  },
+]
+
+export function getReviewsByUser(userId: string): Review[] {
+  return mockReviews.filter((r) => r.toId === userId)
+}
+
+export function getReviewRatingProfile(userId: string) {
+  const reviews = getReviewsByUser(userId)
+  const count = reviews.length
+  if (count === 0) {
+    return { average: 0, count: 0, isPublic: false, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } }
+  }
+  const sum = reviews.reduce((acc, r) => acc + r.rating, 0)
+  const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  for (const r of reviews) {
+    distribution[r.rating as keyof typeof distribution]++
+  }
+  return {
+    average: Math.round((sum / count) * 10) / 10,
+    count,
+    isPublic: count >= 3,
+    distribution,
+  }
+}
+
+export function getCompletedMovesCount(userId: string): number {
+  return mockContracts.filter(
+    (c) => (c.transporterId === userId || c.shipperId === userId) && c.status === "completed"
+  ).length
 }
 
 export interface Review {

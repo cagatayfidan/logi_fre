@@ -1,13 +1,27 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
-import { Calendar, MapPin, Clock, Truck, PackageCheck, ClipboardList, AlertCircle } from "lucide-react"
+import { Calendar, MapPin, Clock, Truck, PackageCheck, ClipboardList, AlertCircle, Loader2 } from "lucide-react"
 import { NavHeader } from "@/components/nav-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/empty-state"
-import { currentUser, getSchedule, type ScheduleEvent } from "@/lib/data"
+import { fetchContracts, fetchUpcomingContracts } from "@/lib/api/contracts"
+import { fetchMoves, type MoveRequest } from "@/lib/api/moves"
+import { useAuth } from "@/lib/auth-context"
+
+interface ScheduleEvent {
+  id: string
+  type: "move" | "pickup" | "delivery"
+  title: string
+  date: string
+  time: string
+  location: string
+  role: "shipper" | "transporter"
+  status: string
+  contractId: string
+}
 
 const eventIcons = {
   pickup: Truck,
@@ -16,6 +30,7 @@ const eventIcons = {
 } as const
 
 const statusColors: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
+  active: { label: "Pending", variant: "outline" },
   pending_checkin: { label: "Pending", variant: "outline" },
   checked_in: { label: "Checked In", variant: "default" },
   in_transit: { label: "In Transit", variant: "default" },
@@ -26,7 +41,7 @@ const statusColors: Record<string, { label: string; variant: "default" | "second
 
 function ScheduleCard({ event }: { event: ScheduleEvent }) {
   const Icon = eventIcons[event.type]
-  const statusConfig = statusColors[event.status]
+  const statusConfig = statusColors[event.status] ?? statusColors.cancelled
   const isPast = new Date(event.date) < new Date(new Date().toDateString())
 
   return (
@@ -72,7 +87,76 @@ function ScheduleCard({ event }: { event: ScheduleEvent }) {
 }
 
 export default function SchedulePage() {
-  const events = useMemo(() => getSchedule(currentUser.id), [])
+  const { user } = useAuth()
+  const [contracts, setContracts] = useState<any[]>([])
+  const [movesMap, setMovesMap] = useState<Record<string, MoveRequest>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        setLoading(true)
+        setError(null)
+        const [allContracts, upcomingContracts, allMoves] = await Promise.all([
+          fetchContracts(),
+          fetchUpcomingContracts(),
+          fetchMoves(),
+        ])
+        if (cancelled) return
+        const ids = new Set<string>()
+        const merged = [...allContracts, ...upcomingContracts].filter((c) => {
+          if (ids.has(c.id)) return false
+          ids.add(c.id)
+          return true
+        })
+        setContracts(merged)
+        const map: Record<string, MoveRequest> = {}
+        for (const m of allMoves) map[m.id] = m
+        setMovesMap(map)
+      } catch {
+        if (!cancelled) setError("Failed to load schedule.")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
+  const events = useMemo<ScheduleEvent[]>(() => {
+    const result: ScheduleEvent[] = []
+    for (const contract of contracts) {
+      const move = movesMap[contract.moveId]
+      if (!move) continue
+      const role = "shipper"
+      result.push({
+        id: `pickup-${contract.id}`,
+        type: "pickup",
+        title: move.title,
+        date: move.pickupDate,
+        time: `${move.pickupTimeStart} - ${move.pickupTimeEnd}`,
+        location: move.origin,
+        role,
+        status: contract.status,
+        contractId: contract.id,
+      })
+      result.push({
+        id: `delivery-${contract.id}`,
+        type: "delivery",
+        title: move.title,
+        date: move.deliveryDate,
+        time: `${move.deliveryTimeStart} - ${move.deliveryTimeEnd}`,
+        location: move.destination,
+        role,
+        status: contract.status,
+        contractId: contract.id,
+      })
+    }
+    result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    return result
+  }, [contracts, movesMap])
 
   const today = new Date().toDateString()
   const sorted = useMemo(() => {
@@ -89,11 +173,17 @@ export default function SchedulePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavHeader role={currentUser.role} userName={currentUser.name} />
+      <NavHeader role={user?.role} userName={user?.name} />
       <main className="mx-auto max-w-3xl px-4 py-6">
         <h1 className="mb-6 text-2xl font-bold">Schedule</h1>
 
-        {events.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : error ? (
+          <p className="py-12 text-center text-sm text-destructive">{error}</p>
+        ) : events.length === 0 ? (
           <EmptyState
             icon="📅"
             title="No scheduled moves"
